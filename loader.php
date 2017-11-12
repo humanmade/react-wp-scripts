@@ -5,8 +5,6 @@
 
 namespace ReactWPScripts;
 
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_assets' );
-
 /**
  * Is this a development environment?
  *
