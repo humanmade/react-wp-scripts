@@ -1,0 +1,10 @@
+{
+	"name": "react-wp-scripts",
+	"bin": {
+		"react-wp-scripts": "./bin/react-wp-scripts.js"
+	},
+	"dependencies": {
+		"react-scripts": "1.0.17",
+		"signal-exit": "^3.0.2"
+	}
+}
