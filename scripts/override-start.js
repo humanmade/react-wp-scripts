@@ -7,6 +7,8 @@ const paths = require( 'react-scripts/config/paths');
 // Load in the current configuration.
 const devConfig = require.resolve( 'react-scripts/config/webpack.config.dev.js' );
 const config = require( devConfig );
+const devServerConfig = require.resolve( 'react-scripts/config/webpackDevServer.config.js' );
+const createServerConfig = require( devServerConfig );
 
 // Apply overrides to config.
 const override = config => {
@@ -63,8 +65,19 @@ const override = config => {
 	return config;
 };
 
+// Apply overrides to dev-server config.
+const overrideServer = config => {
+	// Allow requests from WP.
+	config.headers = { "Access-Control-Allow-Origin": "*" };
+	return config;
+}
+
 // Replace config in require cache with overridden.
 require.cache[ devConfig ].exports = override( config );
+require.cache[ devServerConfig ].exports = ( ...args ) => {
+	const config = createServerConfig( ...args );
+	return overrideServer( config );
+};
 
 // Load the starter.
 require( 'react-scripts/scripts/start' );
