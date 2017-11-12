@@ -5,8 +5,8 @@ const paths = require( 'react-scripts/config/paths');
 // Inject our overrides!
 
 // Load in the current configuration.
-const devServerConfig = require.resolve( 'react-scripts/config/webpack.config.dev.js' );
-const config = require( devServerConfig );
+const devConfig = require.resolve( 'react-scripts/config/webpack.config.dev.js' );
+const config = require( devConfig );
 
 // Apply overrides to config.
 const override = config => {
@@ -64,7 +64,7 @@ const override = config => {
 };
 
 // Replace config in require cache with overridden.
-require.cache[ devServerConfig ].exports = override( config );
+require.cache[ devConfig ].exports = override( config );
 
 // Load the starter.
 require( 'react-scripts/scripts/start' );
