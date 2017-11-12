@@ -10,6 +10,9 @@ const config = require( devServerConfig );
 
 // Apply overrides to config.
 const override = config => {
+	// Force-set the public URL.
+	config.output.publicPath = `http://localhost:${ process.env.PORT }/`;
+
 	// Override the hot client.
 	const hotClient = require.resolve( 'react-dev-utils/webpackHotDevClient' );
 	const hotClientIndex = config.entry.indexOf( hotClient );
