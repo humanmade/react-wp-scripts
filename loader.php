@@ -38,10 +38,6 @@ function get_react_port() {
 }
 
 function enqueue_assets( $id, $deps = [] ) {
-	$deps = [
-		'franceisbacon-typekit',
-	];
-
 	$port = get_react_port();
 	if ( $port ) {
 		wp_enqueue_script(
