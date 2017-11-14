@@ -47,13 +47,14 @@ function get_react_port() {
  * }
  */
 function enqueue_assets( $directory, $opts = [] ) {
-	$handle = basename( $directory );
+	$handle   = basename( $directory );
 	$defaults = [
 		'base_url' => '',
-		'handle' => $handle,
-		'scripts' => [],
-		'styles' => []
+		'handle'   => $handle,
+		'scripts'  => [],
+		'styles'   => [],
 	];
+
 	$opts = wp_parse_args( $opts, $defaults );
 
 	$port = get_react_port();
@@ -69,7 +70,7 @@ function enqueue_assets( $directory, $opts = [] ) {
 		$path     = trailingslashit( $directory ) . 'build/asset-manifest.json';
 		$manifest = [];
 		if ( file_exists( $path ) ) {
-			$data = file_get_contents( $path );
+			$data     = file_get_contents( $path );
 			$manifest = (array) json_decode( $data );
 		}
 
