@@ -37,23 +37,57 @@ function get_react_port() {
 	return (int) trim( $port );
 }
 
-function enqueue_assets( $id, $deps = [] ) {
+/**
+ * @param string $directory Root directory containing `src` and `build` directory.
+ * @param array $opts {
+ *     @type string $base_url Root URL containing `src` and `build` directory. Only needed for production.
+ *     @type string $handle  Style/script handle. (Default is last part of directory name.)
+ *     @type array  $scripts Script dependencies.
+ *     @type array  $styles  Style dependencies.
+ * }
+ */
+function enqueue_assets( $directory, $opts = [] ) {
+	$handle = basename( $directory );
+	$defaults = [
+		'base_url' => '',
+		'handle' => $handle,
+		'scripts' => [],
+		'styles' => []
+	];
+	$opts = wp_parse_args( $opts, $defaults );
+
 	$port = get_react_port();
 	if ( $port ) {
 		wp_enqueue_script(
-			$id,
+			$opts['handle'],
 			sprintf( 'http://localhost:%d/static/js/bundle.js', $port ),
-			$deps,
+			$opts['scripts'],
 			null,
 			true
 		);
 	} else {
+		$path     = trailingslashit( $directory ) . 'build/asset-manifest.json';
+		$manifest = [];
+		if ( file_exists( $path ) ) {
+			$data = file_get_contents( $path );
+			$manifest = (array) json_decode( $data );
+		}
+
+		$base_url = trailingslashit( $opts['base_url'] );
+
 		wp_enqueue_script(
-			$id,
-			get_theme_file_uri( 'build/js/main.js' ),
-			$deps,
+			$opts['handle'],
+			$base_url . 'build/' . $manifest['main.js'],
+			$opts['scripts'],
 			null,
 			true
+		);
+
+		wp_enqueue_style(
+			$opts['handle'],
+			$base_url . 'build/' . $manifest['main.css'],
+			$opts['styles'],
+			null
 		);
 	}
 }
