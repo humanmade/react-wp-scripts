@@ -9,7 +9,7 @@ A wrapper for create-react-app's react-scripts to allow seamless usage in a them
 Add as a package from git, then change your `start` script in `package.json` to:
 
 ```
-react-wp-scripts/bin/react-wp-scripts.js start
+react-wp-scripts start
 ```
 
 Copy `loader.php` to your WP project, and add the loader file:
