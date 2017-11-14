@@ -1,5 +1,6 @@
 {
 	"name": "react-wp-scripts",
+	"version": "0.1",
 	"bin": {
 		"react-wp-scripts": "./bin/react-wp-scripts.js"
 	},
