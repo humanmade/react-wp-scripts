@@ -24,7 +24,7 @@ function get_react_port() {
 		return null;
 	}
 
-	$path = get_theme_file_path( 'react-port' );
+	$path = apply_filters( 'reactwpscripts.react_port_path', get_theme_file_path( 'react-port' ) );
 	if ( ! file_exists( $path ) ) {
 		return null;
 	}
