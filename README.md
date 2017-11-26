@@ -33,7 +33,7 @@ or copy this code into your plugin:
 ```php
 require __DIR__ . '/loader.php';
 
-add_action( 'wp_enqueue_scripts', 'ReactWPScripts\\autoenqueue_theme_assets' );
+add_action( 'wp_enqueue_scripts', 'ReactWPScripts\\autoenqueue_plugin_assets' );
 ```
 
 This will load all generated JS and CSS into your theme or plugin.
