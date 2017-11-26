@@ -47,11 +47,12 @@ function get_file_path( string $path, bool $is_theme ) {
  */
 function get_assets_list( string $is_theme ) {
 	if ( is_development() ) {
+		// Fall back to build directory if there is any error loading the development manifest.
 		$dev_assets_path = get_file_path( 'asset-manifest.json', $is_theme );
 		if ( file_exists( $dev_assets_path ) ) {
-			$build_assets_contents = file_get_contents( $dev_assets_path );
-			if ( ! empty( $build_assets_contents ) ) {
-				return json_decode( file_get_contents( $dev_assets_path ), true );
+			$dev_assets_contents = file_get_contents( $dev_assets_path );
+			if ( ! empty( $dev_assets_contents ) ) {
+				return array_values( json_decode( $dev_assets_contents, true ) );
 			}
 		}
 	}
@@ -59,7 +60,11 @@ function get_assets_list( string $is_theme ) {
 	if ( file_exists( $build_assets_path ) ) {
 		$build_assets_contents = file_get_contents( $build_assets_path );
 		if ( ! empty( $build_assets_contents ) ) {
-			return json_decode( file_get_contents( $build_assets_path ), true );
+			// Prepend "build/" to all build-directory array paths.
+			return array_map(
+				function( $asset_path ) { return 'build/' . $asset_path; },
+				array_values( json_decode( $build_assets_contents, true ) )
+			);
 		}
 	}
 	return null;
@@ -77,6 +82,9 @@ function get_asset_uri( string $asset_path, bool $is_theme ) {
 	if ( strpos( $asset_path, '://' ) !== false ) {
 		return $asset_path;
 	}
+	if ( ! is_development() ) {
+		$asset_path = 'build/' . $asset_path;
+	}
 	return $is_theme
 		? get_theme_file_uri( $asset_path )
 		: plugin_dir_url( __file__ ) . $asset_path;
@@ -92,11 +100,11 @@ function autoenqueue_assets( bool $is_theme ) {
 	// Attempt to load
 	$assets = get_assets_list( $is_theme );
 	if ( empty( $assets ) ) {
-		// TODO: needs error condition.
+		// TODO: This should be an error condition.
 		return;
 	}
 
-	foreach ( $assets as $key => $asset_path ) {
+	foreach ( $assets as $asset_path ) {
 		$is_js = preg_match( '/\.js$/', $asset_path );
 		$is_css = preg_match( '/\.css$/', $asset_path );
 		if ( ! $is_js && ! $is_css ) {
