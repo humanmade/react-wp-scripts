@@ -15,58 +15,49 @@ function is_development() {
 }
 
 /**
- * Create a probably-unique key for a given script bundle.
+ * Attempt to load a file at the specified path and parse its contents as JSON.
  *
- * @param string $path A relative filesystem path or resource URI.
- * @return string
- */
-function get_asset_key( string $path ) {
-	$path_parts = explode( '/', $path );
-	return 'react_wp_script_' . end( $path_parts );
-}
-
-/**
- * Convert a relative path within a theme or plugin to an absolute filesystem path.
- *
- * @param string $path     A relative file system path.
- * @param bool   $is_theme Whether to treat the $path as a theme file.
- * @return string;
- */
-function get_file_path( string $path, bool $is_theme ) {
-	return $is_theme
-		? get_theme_file_path( $path )
-		: plugin_dir_path( __file__ ) . $path;
-}
-
-/**
- * Check the filesystem for asset manifests for a theme or plugin and attempt to
- * decode and return the asset list JSON if found.
- *
- * @param bool $is_theme Whether to look for the manifest in a theme or plugin context.
+ * @param string $path The path to the JSON file to load.
  * @return array|null;
  */
-function get_assets_list( string $is_theme ) {
+function load_asset_file( $path ) {
+	if ( ! file_exists( $path ) ) {
+		return null;
+	}
+	$contents = file_get_contents( $path );
+	if ( empty( $path ) ) {
+		return null;
+	}
+	return json_decode( $contents, true );
+}
+
+/**
+ * Check a directory for a root or build asset manifest file, and attempt to
+ * decode and return the asset list JSON if found.
+ *
+ * @param string $directory Root directory containing `src` and `build` directory.
+ * @return array|null;
+ */
+function get_assets_list( string $directory ) {
+	$directory = trailingslashit( $directory );
 	if ( is_development() ) {
+		$dev_assets = load_asset_file( $directory . 'asset-manifest.json' );
 		// Fall back to build directory if there is any error loading the development manifest.
-		$dev_assets_path = get_file_path( 'asset-manifest.json', $is_theme );
-		if ( file_exists( $dev_assets_path ) ) {
-			$dev_assets_contents = file_get_contents( $dev_assets_path );
-			if ( ! empty( $dev_assets_contents ) ) {
-				return array_values( json_decode( $dev_assets_contents, true ) );
-			}
+		if ( ! empty( $dev_assets ) ) {
+			return array_values( $dev_assets );
 		}
 	}
-	$build_assets_path = get_file_path( 'build/asset-manifest.json', $is_theme );
-	if ( file_exists( $build_assets_path ) ) {
-		$build_assets_contents = file_get_contents( $build_assets_path );
-		if ( ! empty( $build_assets_contents ) ) {
-			// Prepend "build/" to all build-directory array paths.
-			return array_map(
-				function( $asset_path ) { return 'build/' . $asset_path; },
-				array_values( json_decode( $build_assets_contents, true ) )
-			);
-		}
+
+	$production_assets = load_asset_file( $directory . 'build/asset-manifest.json' );
+
+	if ( ! empty( $production_assets ) ) {
+		// Prepend "build/" to all build-directory array paths.
+		return array_map(
+			function( $asset_path ) { return 'build/' . $asset_path; },
+			array_values( $production_assets )
+		);
 	}
+
 	return null;
 }
 
@@ -74,70 +65,67 @@ function get_assets_list( string $is_theme ) {
 /**
  * Return web URIs or convert relative filesystem paths to absolute paths.
  *
- * @param string $asset_path  A relative filesystem path or resource URI.
- * @param bool   $is_theme    Whether to treat the $path as a theme file.
+ * @param string $asset_path A relative filesystem path or full resource URI.
+ * @param string $base_url   A base URL to prepend to relative bundle URIs.
  * @return string
  */
-function get_asset_uri( string $asset_path, bool $is_theme ) {
+function get_asset_uri( string $asset_path, string $base_url ) {
 	if ( strpos( $asset_path, '://' ) !== false ) {
 		return $asset_path;
 	}
-	if ( ! is_development() ) {
-		$asset_path = 'build/' . $asset_path;
-	}
-	return $is_theme
-		? get_theme_file_uri( $asset_path )
-		: plugin_dir_url( __file__ ) . $asset_path;
+
+	return trailingslashit( $base_url ) . $asset_path;
 }
 
 /**
- * Search for webpack-manifest-plugin output, attempt to load it, and enqueue
- * any scripts or styles contained within.
- *
- * @param bool $is_theme Whether to look for files in a theme or plugin context.
+ * @param string $directory Root directory containing `src` and `build` directory.
+ * @param array $opts {
+ *     @type string $base_url Root URL containing `src` and `build` directory. Only needed for production.
+ *     @type string $handle   Style/script handle. (Default is last part of directory name.)
+ *     @type array  $scripts  Script dependencies.
+ *     @type array  $styles   Style dependencies.
+ * }
  */
-function autoenqueue_assets( bool $is_theme ) {
-	// Attempt to load
-	$assets = get_assets_list( $is_theme );
+function enqueue_assets( $directory, $opts = [] ) {
+	$defaults = [
+		'base_url' => '',
+		'handle'   => basename( $directory ),
+		'scripts'  => [],
+		'styles'   => [],
+	];
+
+	$opts = wp_parse_args( $opts, $defaults );
+
+	$assets = get_assets_list( $directory );
+
 	if ( empty( $assets ) ) {
 		// TODO: This should be an error condition.
 		return;
 	}
 
+	// There will be at most one JS and one CSS file in vanilla Create React App manifests.
 	foreach ( $assets as $asset_path ) {
 		$is_js = preg_match( '/\.js$/', $asset_path );
 		$is_css = preg_match( '/\.css$/', $asset_path );
+
 		if ( ! $is_js && ! $is_css ) {
+			// Assets such as source maps and images are also listed; ignore these.
 			continue;
 		}
-		// Asset file contains URIs, enqueue them directly.
+
 		if ( $is_js ) {
 			wp_enqueue_script(
-				get_asset_key( $asset_path ),
-				get_asset_uri( $asset_path, $is_theme ),
+				$opts['handle'],
+				get_asset_uri( $asset_path, $opts['base_url'] ),
 				[],
 				null,
 				true
 			);
 		} else if ( $is_css ) {
 			wp_enqueue_style(
-				get_asset_key( $asset_path ),
-				get_asset_uri( $asset_path, $is_theme )
+				$opts['handle'],
+				get_asset_uri( $asset_path, $opts['base_url'] )
 			);
 		}
 	}
-}
-
-/**
- * Wrapper function to auto-enqueue all built assets for a theme.
- */
-function autoenqueue_theme_assets() {
-	autoenqueue_assets( true );
-}
-
-/**
- * Wrapper function to auto-enqueue all built assets for a plugin.
- */
-function autoenqueue_plugin_assets() {
-	autoenqueue_assets( false );
 }

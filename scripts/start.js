@@ -36,6 +36,8 @@ fs.readFile( ASSET_FILE_PATH, ( err, data ) => {
 
 		// Pass the selected port forward so that react-scripts' start will not re-prompt.
 		process.env.PORT = port;
+		// Do not attempt to load the dev server root in a new browser window.
+		process.env.BROWSER = 'none';
 
 		// Load the parent start script now that configuration patching is complete.
 		require( 'react-scripts/scripts/start' );

@@ -22,21 +22,42 @@ to
 "start": "react-wp-scripts start",
 ```
 
-Copy `loader.php` to your project (_e.g._ `cp node_modules/react-wp-scripts/loader.php .` on OSX/Linux), then copy this code into your theme:
+Copy `loader.php` from the module to your project root (_e.g._ `cp node_modules/react-wp-scripts/loader.php .` on OSX/Linux), then copy this code into your theme:
 
 ```php
 require __DIR__ . '/loader.php';
 
-add_action( 'wp_enqueue_scripts', 'ReactWPScripts\\autoenqueue_theme_assets' );
+function mytheme_enqueue_assets() {
+	\ReactWPScripts\enqueue_assets( get_stylesheet_directory(), [
+		'base_url' => get_stylesheet_directory_uri(),
+	] );
+}
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_assets' );
 ```
 or copy this code into your plugin:
 ```php
 require __DIR__ . '/loader.php';
 
-add_action( 'wp_enqueue_scripts', 'ReactWPScripts\\autoenqueue_plugin_assets' );
+function myplugin_enqueue_assets() {
+	\ReactWPScripts\enqueue_assets( plugin_dir_path( __FILE__ ), [
+		'base_url' => plugin_dir_url( __FILE__ ),
+	] );
+}
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_assets' );
 ```
 
 This will load all generated JS and CSS into your theme or plugin.
+
+### `enqueue_assets`
+
+The `enqueue_assets` function takes two arguments: the filesystem path to the project directory containing the `src` and `build` folders, and an optional array argument which may be used to customize script handles and dependencies. Available options:
+
+- `base_url`: The URL of the project base that contains the `src` and `build` directories.
+- `handle`: The handle to use when registering the app's script and stylesheet. This will default to the last part of the directory passed to enqueue_assets.
+- `scripts`: An array of script dependencies to load before your bundle.
+- `styles`: An array of stylesheet dependencies to load before your bundle.
+
+As in the examples above, for proper script resolution within a theme or plugin the `base_url` property is effectively required.
 
 ## How It Works
 
