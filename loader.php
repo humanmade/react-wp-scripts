@@ -133,12 +133,17 @@ function enqueue_assets( $directory, $opts = [] ) {
 
 	// There will be at most one JS and one CSS file in vanilla Create React App manifests.
 	foreach ( $assets as $asset_path ) {
-		$is_js = preg_match( '/\.js$/', $asset_path );
-		$is_css = preg_match( '/\.css$/', $asset_path );
+		$is_js   = preg_match( '/\.js$/', $asset_path );
+		$is_css  = preg_match( '/\.css$/', $asset_path );
+		$version = null;
 
 		if ( ! $is_js && ! $is_css ) {
 			// Assets such as source maps and images are also listed; ignore these.
 			continue;
+		}
+
+		if ( file_exists( trailingslashit( $directory ) . $asset_path ) ) {
+			$version = filemtime( trailingslashit( $directory ) . $asset_path );
 		}
 
 		if ( $is_js ) {
@@ -146,13 +151,15 @@ function enqueue_assets( $directory, $opts = [] ) {
 				$opts['handle'],
 				get_asset_uri( $asset_path, $base_url ),
 				[],
-				null,
+				$version,
 				true
 			);
 		} else if ( $is_css ) {
 			wp_enqueue_style(
 				$opts['handle'],
-				get_asset_uri( $asset_path, $base_url )
+				get_asset_uri( $asset_path, $base_url ),
+				[],
+				$version
 			);
 		}
 	}
