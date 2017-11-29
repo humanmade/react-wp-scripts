@@ -43,6 +43,6 @@ fs.readFile( ASSET_FILE_PATH, ( err, data ) => {
 		require( 'react-scripts/scripts/start' );
 
 		// Before exit, delete the port file.
-		onExit( () => fs.unlinkSync( ASSET_FILE_PATH ) );
+		onExit( () => fs.unlinkSync( path.join( process.cwd(), 'build/' + ASSET_FILENAME ) ) );
 	} );
 } );
