@@ -41,11 +41,10 @@ function load_asset_file( $path ) {
 function get_assets_list( string $directory ) {
 	$directory = trailingslashit( $directory );
 	if ( is_development() ) {
-		$dev_assets = load_asset_file( $directory . 'build/asset-manifest.json' );
+		$dev_assets = load_asset_file( $directory . 'asset-manifest.json' );
 		if ( ! empty( $dev_assets ) ) {
 			return array_values( $dev_assets );
 		}
-		return null;
 	}
 
 	$production_assets = load_asset_file( $directory . 'build/asset-manifest.json' );
