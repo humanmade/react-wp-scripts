@@ -42,10 +42,10 @@ function get_assets_list( string $directory ) {
 	$directory = trailingslashit( $directory );
 	if ( is_development() ) {
 		$dev_assets = load_asset_file( $directory . 'build/asset-manifest.json' );
-		// Fall back to build directory if there is any error loading the development manifest.
 		if ( ! empty( $dev_assets ) ) {
 			return array_values( $dev_assets );
 		}
+		return null;
 	}
 
 	$production_assets = load_asset_file( $directory . 'build/asset-manifest.json' );
@@ -125,7 +125,24 @@ function enqueue_assets( $directory, $opts = [] ) {
 	}
 
 	if ( empty( $assets ) ) {
-		// TODO: This should be an error condition.
+		wp_enqueue_script(
+			$opts['handle'],
+			infer_base_url( trailingslashit( dirname( __FILE__ ) ) . 'scripts/error.js' ),
+			[],
+			null,
+			true
+		);
+
+		wp_localize_script(
+			$opts['handle'],
+			'reactWpScripts',
+			[
+				'devMode' => is_development(),
+				'directory' => $directory,
+				'opts' => $opts
+			]
+		);
+
 		return;
 	}
 
