@@ -52,12 +52,10 @@ This will load all generated JS and CSS into your theme or plugin.
 
 The `enqueue_assets` function takes two arguments: the filesystem path to the project directory containing the `src` and `build` folders, and an optional array argument which may be used to customize script handles and dependencies. Available options:
 
-- `base_url`: The URL of the project base that contains the `src` and `build` directories.
+- `base_url`: The URL of the project base that contains the `src` and `build` directories. If not specified, this URL will be inferred from the provided directory path string.
 - `handle`: The handle to use when registering the app's script and stylesheet. This will default to the last part of the directory passed to enqueue_assets.
 - `scripts`: An array of script dependencies to load before your bundle.
 - `styles`: An array of stylesheet dependencies to load before your bundle.
-
-As in the examples above, for proper script resolution within a theme or plugin the `base_url` property is effectively required.
 
 ## How It Works
 

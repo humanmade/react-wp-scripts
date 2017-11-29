@@ -61,6 +61,29 @@ function get_assets_list( string $directory ) {
 	return null;
 }
 
+/**
+ * Infer a base web URL for a file system path.
+ *
+ * @param string $path Filesystem path for which to return a URL.
+ * @return string|null
+ */
+function infer_base_url( string $path ) {
+	if ( strpos( $path, get_stylesheet_directory() ) === 0 ) {
+		return get_theme_file_uri( substr( $path, strlen( get_stylesheet_directory() ) ) );
+	}
+
+	if ( strpos( $path, get_template_directory() ) === 0 ) {
+		return get_theme_file_uri( substr( $path, strlen( get_template_directory() ) ) );
+	}
+
+	// Any path not known to exist within a theme is treated as a plugin path.
+	$plugin_path = plugin_dir_path( __FILE__ );
+	if ( strpos( $path, $plugin_path ) === 0 ) {
+		return plugin_dir_url( __FILE__ ) . substr( $path, strlen( $plugin_path ) );
+	}
+
+	return '';
+}
 
 /**
  * Return web URIs or convert relative filesystem paths to absolute paths.
@@ -98,6 +121,11 @@ function enqueue_assets( $directory, $opts = [] ) {
 
 	$assets = get_assets_list( $directory );
 
+	$base_url = $opts['base_url'];
+	if ( empty( $base_url ) ) {
+		$base_url = infer_base_url( $directory );
+	}
+
 	if ( empty( $assets ) ) {
 		// TODO: This should be an error condition.
 		return;
@@ -116,7 +144,7 @@ function enqueue_assets( $directory, $opts = [] ) {
 		if ( $is_js ) {
 			wp_enqueue_script(
 				$opts['handle'],
-				get_asset_uri( $asset_path, $opts['base_url'] ),
+				get_asset_uri( $asset_path, $base_url ),
 				[],
 				null,
 				true
@@ -124,7 +152,7 @@ function enqueue_assets( $directory, $opts = [] ) {
 		} else if ( $is_css ) {
 			wp_enqueue_style(
 				$opts['handle'],
-				get_asset_uri( $asset_path, $opts['base_url'] )
+				get_asset_uri( $asset_path, $base_url )
 			);
 		}
 	}
