@@ -1,5 +1,5 @@
 window.onload = function() {
-	var errorContent ='<div style="font-family:monospace;background:rgba(206, 17, 38, 0.05);color:white;position:absolute;top:0;left:0;right:0;padding:20px;"> \
+	var errorContent ='<div style="font-family:monospace;background:rgba(206, 17, 38, 0.7);color:white;position:absolute;top:0;left:0;right:0;padding:20px;"> \
 		<p>React bundle could not be loaded</p> \
 		<p>Make sure that webpack dev server is running or that you have build your assets</p>';
 
