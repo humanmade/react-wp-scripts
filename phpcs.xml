@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset name="react-wp-scripts">
+	<description>WordPress rules for use with hm base</description>
+	<!--
+	Include all the rules in the WordPress Standard.
+	-->
+	<rule ref="WordPress-Core" />
+</ruleset>
