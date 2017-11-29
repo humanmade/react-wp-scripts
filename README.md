@@ -9,7 +9,7 @@ A wrapper for create-react-app's `react-scripts` to allow seamless usage of scri
 From the root directory of your `create-react-app`-generated project, run
 
 ```sh
-npm install humanmade/react-wp-scripts
+npm install react-wp-scripts
 ```
 
 Once installed, change your `start` script in `package.json` from
