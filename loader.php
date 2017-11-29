@@ -42,6 +42,7 @@ function get_assets_list( string $directory ) {
 	$directory = trailingslashit( $directory );
 	if ( is_development() ) {
 		$dev_assets = load_asset_file( $directory . 'asset-manifest.json' );
+		// Fall back to build directory if there is any error loading the development manifest.
 		if ( ! empty( $dev_assets ) ) {
 			return array_values( $dev_assets );
 		}
