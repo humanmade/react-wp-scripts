@@ -115,6 +115,7 @@ function enqueue_assets( $directory, $opts = [] ) {
 		'handle'   => basename( $directory ),
 		'scripts'  => [],
 		'styles'   => [],
+		'version'  => null,
 	];
 
 	$opts = wp_parse_args( $opts, $defaults );
@@ -135,15 +136,16 @@ function enqueue_assets( $directory, $opts = [] ) {
 	foreach ( $assets as $asset_path ) {
 		$is_js   = preg_match( '/\.js$/', $asset_path );
 		$is_css  = preg_match( '/\.css$/', $asset_path );
-		$version = null;
 
 		if ( ! $is_js && ! $is_css ) {
 			// Assets such as source maps and images are also listed; ignore these.
 			continue;
 		}
 
-		if ( file_exists( trailingslashit( $directory ) . $asset_path ) ) {
+		if ( ! $opts['version'] && file_exists( trailingslashit( $directory ) . $asset_path ) ) {
 			$version = filemtime( trailingslashit( $directory ) . $asset_path );
+		} else {
+			$version = $opts['version'];
 		}
 
 		if ( $is_js ) {
