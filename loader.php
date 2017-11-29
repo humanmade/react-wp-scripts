@@ -113,8 +113,6 @@ function enqueue_assets( $directory, $opts = [] ) {
 	$defaults = [
 		'base_url' => '',
 		'handle'   => basename( $directory ),
-		'scripts'  => [],
-		'styles'   => [],
 	];
 
 	$opts = wp_parse_args( $opts, $defaults );
