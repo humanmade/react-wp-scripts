@@ -1,83 +1,68 @@
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-const paths = require( 'react-scripts/config/paths');
+const ManifestPlugin = require( 'webpack-manifest-plugin' );
 
-// Inject our overrides!
-
-// Load in the current configuration.
+// Load in the default configuration. This primes the require cache we will override below.
 const devConfig = require.resolve( 'react-scripts/config/webpack.config.dev.js' );
 const config = require( devConfig );
 const devServerConfig = require.resolve( 'react-scripts/config/webpackDevServer.config.js' );
 const createServerConfig = require( devServerConfig );
 
-// Apply overrides to config.
-const override = config => {
-	// Force-set the public URL.
-	config.output.publicPath = `http://localhost:${ process.env.PORT }/`;
+/**
+ * Method to apply overrides to webpack dev config object.
+ *
+ * @param {object} config    The webpack dev configuration object.
+ * @param {string} devServer The protocol, host & port of the running dev server.
+ */
+const overrideWebpackConfig = ( config, devServer ) => {
 
-	// Override the hot client.
+	// Force the publicPath to point at the running dev server's address. This
+	// ensures that references to files emitted by the build will be relative
+	// to the running development server. This path requires a trailing slash.
+	config.output.publicPath = `${ devServer }/`;
+
+	// Replace the react-dev-utils webpackHotDevClient with a version patched to
+	// correctly detect the dev server host & port for socket requests.
 	const hotClient = require.resolve( 'react-dev-utils/webpackHotDevClient' );
 	const hotClientIndex = config.entry.indexOf( hotClient );
-	config.entry[ hotClientIndex ] = require.resolve( '../overrides/webpackHotDevClient' );
+	config.entry.splice(hotClientIndex, 1, require.resolve( '../overrides/webpackHotDevClient' ) );
 
-	const ExtractTextPlugin = require('extract-text-webpack-plugin');
-
-	// Add SCSS.
-	/*const extractSass = new ExtractTextPlugin({
-		filename: "[name].[contenthash].css",
-		disable: process.env.NODE_ENV === "development"
-	});
-	function rewireSass(config, env) {
-		config.module.rules.find( rule => rule.hasOwnProperty( 'oneOf' ) ).oneOf.unshift( {
-			test: /\.scss$/,
-			use: (env === 'development') ?
-				[
-					{
-						loader: "style-loader",
-					},
-					{
-						loader: "css-loader",
-					},
-					{
-						loader: "sass-loader",
-					}
-				]
-			: extractSass.extract( {
-				use: [
-					{
-						loader: "css-loader"
-					},
-					{
-						loader: "sass-loader"
-					}
-				],
-				// use style-loader in development
-				fallback: "style-loader"
-			} ),
-		} );
-
-		return config;
-	}
-
-	config = rewireSass( config, process.env.NODE_ENV );
-	*/
+	// Also patch in a ManifestPlugin instance configured to emit from within
+	// webpack-dev-server. This file contains a mapping of all asset filenames
+	// to their corresponding output URI so that WordPress can load relevant
+	// files from the dev server.
+	config.plugins.push(new ManifestPlugin({
+		basePath: config.output.publicPath,
+		fileName: 'asset-manifest.json',
+		writeToFileEmit: true,
+	}));
 
 	return config;
 };
 
-// Apply overrides to dev-server config.
-const overrideServer = config => {
-	// Allow requests from WP.
-	config.headers = { "Access-Control-Allow-Origin": "*" };
-	return config;
+/**
+ * Apply overrides to the webpack-dev-server's configuration object.
+ *
+ * @param {object} serverConfig The development server configuration object.
+ */
+const overrideServerConfig = serverConfig => {
+	// Permit dev server access from our WordPress host.
+	serverConfig.headers = Object.assign({}, serverConfig.headers, {
+		'Access-Control-Allow-Origin': '*',
+	});
+	return serverConfig;
 }
 
-// Replace config in require cache with overridden.
-require.cache[ devConfig ].exports = override( config );
-require.cache[ devServerConfig ].exports = ( ...args ) => {
-	const config = createServerConfig( ...args );
-	return overrideServer( config );
+/**
+ * Override the require cache's copies of the webpack and dev server config.
+ *
+ * @param {string} devServer The protocol, host & port of the running dev server.
+ */
+module.exports = devServer => {
+	// Replace config modules in require cache with overridden versions.
+	require.cache[ devConfig ].exports = overrideWebpackConfig( config, devServer );
+	require.cache[ devServerConfig ].exports = ( ...args ) => {
+		const serverConfig = createServerConfig( ...args );
+		return overrideServerConfig( serverConfig );
+	};
 };
-
-// Load the starter.
-require( 'react-scripts/scripts/start' );
