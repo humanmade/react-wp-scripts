@@ -28,22 +28,18 @@ Copy `loader.php` from the module to your project root (_e.g._ `cp node_modules/
 require __DIR__ . '/loader.php';
 
 function mytheme_enqueue_assets() {
-	\ReactWPScripts\enqueue_assets( get_stylesheet_directory(), [
-		'base_url' => get_stylesheet_directory_uri(),
-	] );
+	\ReactWPScripts\enqueue_assets( get_stylesheet_directory() );
 }
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_assets' );
+add_action( 'wp_enqueue_scripts', 'mytheme_enqueue_assets' );
 ```
 or copy this code into your plugin:
 ```php
 require __DIR__ . '/loader.php';
 
 function myplugin_enqueue_assets() {
-	\ReactWPScripts\enqueue_assets( plugin_dir_path( __FILE__ ), [
-		'base_url' => plugin_dir_url( __FILE__ ),
-	] );
+	\ReactWPScripts\enqueue_assets( plugin_dir_path( __FILE__ ) );
 }
-add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_assets' );
+add_action( 'wp_enqueue_scripts', 'myplugin_enqueue_assets' );
 ```
 
 This will load all generated JS and CSS into your theme or plugin.
