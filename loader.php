@@ -18,14 +18,14 @@ function is_development() {
  * Attempt to load a file at the specified path and parse its contents as JSON.
  *
  * @param string $path The path to the JSON file to load.
- * @return array|null;
+ * @return string|null;
  */
 function load_asset_file( $path ) {
 	if ( ! file_exists( $path ) ) {
 		return null;
 	}
 	$contents = file_get_contents( $path );
-	if ( empty( $path ) ) {
+	if ( empty( $contents ) ) {
 		return null;
 	}
 	return json_decode( $contents, true );
