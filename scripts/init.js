@@ -11,7 +11,7 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 
 module.exports = function(
-	appPath,
+	appPath
 ) {
 	const pkgName = require( path.join( __dirname, '..', 'package.json' ) ).name;
 	const reactWPScriptsPath = path.join( appPath, 'node_modules', pkgName );
