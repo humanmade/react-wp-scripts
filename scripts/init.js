@@ -9,19 +9,13 @@ process.on( 'unhandledRejection', err => {
 const fs = require( 'fs-extra' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
-const spawn = require( 'react-dev-utils/crossSpawn' );
 
 module.exports = function(
 	appPath,
-	appName,
-	verbose,
-	originalDirectory,
-	template
 ) {
 	const pkgName = require( path.join( __dirname, '..', 'package.json' ) ).name;
 	const reactWPScriptsPath = path.join( appPath, 'node_modules', pkgName );
 	const appPackage = require( path.join( appPath, 'package.json' ) );
-	const useYarn = fs.existsSync( path.join( appPath, 'yarn.lock' ) );
 
 	// Copy over some of the devDependencies
 	appPackage.dependencies = appPackage.dependencies || {};
