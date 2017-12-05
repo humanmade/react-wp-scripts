@@ -18,7 +18,7 @@ function is_development() {
  * Attempt to load a file at the specified path and parse its contents as JSON.
  *
  * @param string $path The path to the JSON file to load.
- * @return string|null;
+ * @return array|null;
  */
 function load_asset_file( $path ) {
 	if ( ! file_exists( $path ) ) {
