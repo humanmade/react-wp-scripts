@@ -1,48 +1,28 @@
 # react-wp-scripts
 
-A wrapper for create-react-app's `react-scripts` to allow seamless usage of scripts and styles served from `webpack-dev-server` while developing a theme or plugin.
+A wrapper for create-react-app's [`react-scripts`](https://github.com/facebookincubator/create-react-app/tree/master/packages/react-scripts) to allow seamless usage of scripts and styles served from `webpack-dev-server` while developing a theme or plugin.
 
 **Important Note**: This project is brand new, and largely untested. We recommend using it as a learning tool rather than depending on it for critical development work.
 
 ## Installation & Usage
 
-From the root directory of your `create-react-app`-generated project, run
+Run `create-react-app --scripts-version react-wp-scripts /path/to/your/project/folder`
 
-```sh
-npm install react-wp-scripts
-```
+A new `loader-react-scripts.php` will be created on your generated project folder.
 
-Once installed, change your `start` script in `package.json` from
-
-```
-"start": "react-scripts start",
-```
-to
-```
-"start": "react-wp-scripts start",
-```
-
-Copy `loader.php` from the module to your project root (_e.g._ `cp node_modules/react-wp-scripts/loader.php .` on OSX/Linux), then copy this code into your theme:
-
+Copy this code into your theme/plugin:
 ```php
-require __DIR__ . '/loader.php';
+require __DIR__ . '/loader-react-scripts.php';
 
 function mytheme_enqueue_assets() {
 	\ReactWPScripts\enqueue_assets( get_stylesheet_directory() );
 }
 add_action( 'wp_enqueue_scripts', 'mytheme_enqueue_assets' );
 ```
-or copy this code into your plugin:
-```php
-require __DIR__ . '/loader.php';
-
-function myplugin_enqueue_assets() {
-	\ReactWPScripts\enqueue_assets( plugin_dir_path( __FILE__ ) );
-}
-add_action( 'wp_enqueue_scripts', 'myplugin_enqueue_assets' );
-```
 
 This will load all generated JS and CSS into your theme or plugin.
+
+From now on, follow the common `react-scripts` [commands](https://github.com/facebookincubator/create-react-app/blob/master/README.md#npm-start-or-yarn-start)
 
 ### `enqueue_assets`
 
