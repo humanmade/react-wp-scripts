@@ -11,22 +11,28 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 
 module.exports = function(
-	appPath
+	appPath,
+	appName,
+	verbose,
+	originalDirectory,
+	template
 ) {
 	const pkgName = require( path.join( __dirname, '..', 'package.json' ) ).name;
 	const reactWPScriptsPath = path.join( appPath, 'node_modules', pkgName );
 	const appPackage = require( path.join( appPath, 'package.json' ) );
 
-	// Copy over some of the devDependencies
-	appPackage.dependencies = appPackage.dependencies || {};
+	const scriptsPath = path.resolve(
+		process.cwd(),
+		'node_modules',
+		'react-scripts',
+		'scripts',
+		'init.js'
+	);
+	const reactScriptsInit = require(scriptsPath);
+	reactScriptsInit( appPath, appName, verbose, originalDirectory, template );
 
-	// Setup the script rules
-	appPackage.scripts = {
-		start: 'react-wp-scripts start',
-		build: 'react-scripts build',
-		test: 'react-scripts test --env=jsdom',
-		eject: 'react-scripts eject',
-	};
+	// Setup the custom start script
+	appPackage.scripts.start = 'react-wp-scripts start';
 
 	fs.writeFileSync(
 		path.join( appPath, 'package.json' ),
