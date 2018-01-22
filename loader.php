@@ -145,14 +145,15 @@ function enqueue_assets( $directory, $opts = [] ) {
 			wp_enqueue_script(
 				$opts['handle'],
 				get_asset_uri( $asset_path, $base_url ),
-				[],
+				$opts['scripts'],
 				null,
 				true
 			);
 		} else if ( $is_css ) {
 			wp_enqueue_style(
 				$opts['handle'],
-				get_asset_uri( $asset_path, $base_url )
+				get_asset_uri( $asset_path, $base_url ),
+				$opts['styles']
 			);
 		}
 	}
