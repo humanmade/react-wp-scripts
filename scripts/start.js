@@ -1,24 +1,18 @@
 const chalk = require( 'chalk' );
-const { spawn } = require( 'child_process' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const onExit = require( 'signal-exit' );
 const overrideConfigCache = require( './override-start' );
 
-const {
-	choosePort,
-	createCompiler,
-	prepareProxy,
-	prepareUrls,
-} = require('react-dev-utils/WebpackDevServerUtils');
+const { choosePort } = require('react-dev-utils/WebpackDevServerUtils');
 
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
-const HOST = process.env.HOST || 'localhost';
+const HOST = process.env.HOST || '0.0.0.0';
 
 const ASSET_FILENAME = 'asset-manifest.json';
 const ASSET_FILE_PATH = path.join( process.cwd(), ASSET_FILENAME );
 
-fs.readFile( ASSET_FILE_PATH, ( err, data ) => {
+fs.readFile( ASSET_FILE_PATH, ( err ) => {
 	if ( ! err ) {
 		console.log( chalk.green( `${ ASSET_FILENAME } found: assuming dev server is already running.` ) );
 		return;
@@ -30,9 +24,11 @@ fs.readFile( ASSET_FILE_PATH, ( err, data ) => {
 			return;
 		}
 		const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
+		// Even though we bind to 0.0.0.0, we communicate "localhost".
+		const host = HOST === '0.0.0.0' ? '127.0.0.1' : HOST;
 
 		// Pass in the full hostname of the dev server.
-		overrideConfigCache( `${ protocol }://${ HOST }:${ port }` );
+		overrideConfigCache( `${ protocol }://${ host }:${ port }` );
 
 		// Pass the selected port forward so that react-scripts' start will not re-prompt.
 		process.env.PORT = port;
