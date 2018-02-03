@@ -166,7 +166,7 @@ function enqueue_assets( $directory, $opts = [] ) {
 		wp_register_style(
 			$opts['handle'],
 			null,
-			$opts['styles'],
+			$opts['styles']
 		);
 		wp_enqueue_style( $opts['handle'] );
 	}
