@@ -5,6 +5,11 @@
 
 namespace ReactWPScripts;
 
+// Prevent fatal error in case multiple plugins and/or themes make use of this.
+if ( function_exists( __NAMESPACE__ . '\\enqueue_assets' ) ) {
+	return;
+}
+
 /**
  * Is this a development environment?
  *
