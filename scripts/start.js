@@ -25,7 +25,7 @@ fs.readFile( ASSET_FILE_PATH, ( err ) => {
 		}
 		const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 		// Even though we bind to 0.0.0.0, we communicate "localhost".
-		const host = HOST === '0.0.0.0' ? '127.0.0.1' : HOST;
+		const host = HOST === '0.0.0.0' ? 'localhost' : HOST;
 
 		// Pass in the full hostname of the dev server.
 		overrideConfigCache( `${ protocol }://${ host }:${ port }` );
