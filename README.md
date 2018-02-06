@@ -10,6 +10,17 @@ Run `create-react-app --scripts-version react-wp-scripts /path/to/your/project/f
 
 A new `loader-react-scripts.php` will be created on your generated project folder.
 
+
+Once installed, change your `start` script in `package.json` from
+
+```
+"start": "react-scripts start",
+```
+to
+```
+"start": "react-wp-scripts start",
+```
+
 Copy this code into your theme/plugin:
 ```php
 require __DIR__ . '/loader-react-scripts.php';
