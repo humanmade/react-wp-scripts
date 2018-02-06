@@ -132,6 +132,7 @@ function enqueue_assets( $directory, $opts = [] ) {
 	}
 
 	// There will be at most one JS and one CSS file in vanilla Create React App manifests.
+	$has_css = false;
 	foreach ( $assets as $asset_path ) {
 		$is_js = preg_match( '/\.js$/', $asset_path );
 		$is_css = preg_match( '/\.css$/', $asset_path );
@@ -145,15 +146,28 @@ function enqueue_assets( $directory, $opts = [] ) {
 			wp_enqueue_script(
 				$opts['handle'],
 				get_asset_uri( $asset_path, $base_url ),
-				[],
+				$opts['scripts'],
 				null,
 				true
 			);
 		} else if ( $is_css ) {
+			$has_css = true;
 			wp_enqueue_style(
 				$opts['handle'],
-				get_asset_uri( $asset_path, $base_url )
+				get_asset_uri( $asset_path, $base_url ),
+				$opts['styles']
 			);
 		}
+	}
+
+	// Ensure CSS dependencies are always loaded, even when using CSS-in-JS in
+	// development.
+	if ( ! $has_css ) {
+		wp_register_style(
+			$opts['handle'],
+			null,
+			$opts['styles']
+		);
+		wp_enqueue_style( $opts['handle'] );
 	}
 }
