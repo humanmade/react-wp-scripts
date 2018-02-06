@@ -9,7 +9,7 @@ A wrapper for create-react-app's [`react-scripts`](https://github.com/facebookin
 Run `create-react-app --scripts-version react-wp-scripts --php-namespace="Your_Namespace" /path/to/your/project/folder`
 Replace `Your_Namespace` with any name you'd like to use for your PHP namespace. Default is `ReactWPScripts`
 
-A new `loader-react-scripts.php` will be created on your generated project folder.
+A new `react-wp-scripts.php` will be created on your generated project folder.
 
 
 Once installed, change your `start` script in `package.json` from
@@ -24,7 +24,7 @@ to
 
 Copy this code into your theme/plugin:
 ```php
-require __DIR__ . '/loader-react-scripts.php';
+require __DIR__ . '/react-wp-scripts.php';
 
 function mytheme_enqueue_assets() {
 	\ReactWPScripts\enqueue_assets( get_stylesheet_directory() );
