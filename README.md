@@ -6,7 +6,8 @@ A wrapper for create-react-app's [`react-scripts`](https://github.com/facebookin
 
 ## Installation & Usage
 
-Run `create-react-app --scripts-version react-wp-scripts /path/to/your/project/folder`
+Run `create-react-app --scripts-version react-wp-scripts --php-namespace="Your_Namespace" /path/to/your/project/folder`
+Replace `Your_Namespace` with any name you'd like to use for your PHP namespace. Default is `ReactWPScripts`
 
 A new `loader-react-scripts.php` will be created on your generated project folder.
 
