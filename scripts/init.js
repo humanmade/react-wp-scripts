@@ -48,7 +48,7 @@ module.exports = function(
 		console.log( chalk.blue( 'https://github.com/humanmade/react-wp-scripts#react-wp-scripts' ) );
 	}
 
-	fs.copy( loaderPath, path.join( appPath, 'loader-react-scripts.php' ) )
+	fs.copy( loaderPath, path.join( appPath, 'react-wp-scripts.php' ) )
 		.then( () => successMessage() )
 		.catch( err => {
 			console.log( chalk.bgRed( 'React WP Scripts loader could not be copied to your root folder. Error details:' ) );
