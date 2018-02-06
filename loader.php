@@ -3,7 +3,7 @@
  * Entrypoint for the theme.
  */
 
-namespace ReactWPScripts;
+namespace %%NAMESPACE%%;
 
 /**
  * Is this a development environment?
