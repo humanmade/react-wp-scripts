@@ -83,7 +83,7 @@ function infer_base_url( string $path ) {
 	// Any path not known to exist within a theme is treated as a plugin path.
 	$plugin_path = get_plugin_basedir_path();
 	if ( strpos( $path, $plugin_path ) === 0 ) {
-		return plugin_dir_url( __FILE__ ) . ltrim( substr( $path, strlen( $plugin_path ) ), '/' );
+		return plugin_dir_url( __FILE__ ) . substr( $path, strlen( $plugin_path ) + 1 );
 	}
 
 	return '';
