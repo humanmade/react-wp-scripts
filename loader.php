@@ -25,7 +25,7 @@ function load_asset_file( $path ) {
 		return null;
 	}
 	$contents = file_get_contents( $path );
-	if ( empty( $path ) ) {
+	if ( empty( $contents ) ) {
 		return null;
 	}
 	return json_decode( $contents, true );
