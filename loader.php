@@ -129,7 +129,7 @@ function get_asset_uri( string $asset_path, string $base_url ) {
 function enqueue_assets( $directory, $opts = [] ) {
 	$defaults = [
 		'base_url' => '',
-		'handle'   => basename( $directory ),
+		'handle'   => 'rwps' . basename( $directory ),
 		'scripts'  => [],
 		'styles'   => [],
 	];
