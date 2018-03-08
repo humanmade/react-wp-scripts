@@ -23,7 +23,7 @@ module.exports = function(
 ) {
 
 	// Parse a namespace based on the name of the package
-	let namespace = argv['php-namespace'] || 'ReactWPScripts';
+	const namespace = argv['php-namespace'] || 'ReactWPScripts';
 
 	const pkgName = require( path.join( __dirname, '..', 'package.json' ) ).name;
 	const reactWPScriptsPath = path.join( appPath, 'node_modules', pkgName );
