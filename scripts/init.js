@@ -60,23 +60,23 @@ module.exports = function(
 	const destinationFile = path.join( appPath, 'react-wp-scripts.php' );
 	fs.copy( loaderPath, destinationFile )
 		.then( () => {
-		// Replace %%NAMESPACE%% for the specified namespace
-		fs.readFile(destinationFile, 'utf8', function(err, data) {
-		if (err) {
-			console.log(err);
-		}
+			// Replace %%NAMESPACE%% for the specified namespace
+			fs.readFile( destinationFile, 'utf8', function( err, data ) {
+				if ( err ) {
+					console.log( err );
+				}
 
-		var result = data.replace('%%NAMESPACE%%',namespace);
-		fs.writeFile(destinationFile, result, 'utf8', function(err) {
-			if (err) {
-				return console.log(err);
-			};
-		});
-	});
-})
-.then( () => successMessage() )
-.catch( err => {
-		console.log( chalk.bgRed( 'React WP Scripts loader could not be copied to your root folder. Error details:' ) );
-	console.log( chalk.red( err ) );
-} );
+				var result = data.replace( '%%NAMESPACE%%', namespace );
+				fs.writeFile( destinationFile, result, 'utf8', function( err ) {
+					if ( err ) {
+						return console.log( err );
+					}
+				} );
+			} );
+		} )
+		.then( () => successMessage() )
+		.catch( err => {
+			console.log( chalk.bgRed( 'React WP Scripts loader could not be copied to your root folder. Error details:' ) );
+			console.log( chalk.red( err ) );
+		} );
 };
