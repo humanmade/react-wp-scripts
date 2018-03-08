@@ -11,7 +11,8 @@ process.on( 'unhandledRejection', err => {
 const fs = require( 'fs-extra' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
-const upperCamelCase = require( 'uppercamelcase' );
+
+const argv = require( 'minimist' )( process.argv.slice( 2 ) );
 
 module.exports = function(
 	appPath,
@@ -22,12 +23,7 @@ module.exports = function(
 ) {
 
 	// Parse a namespace based on the name of the package
-	let namespace = 'ReactWPScripts';
-	try {
-		const projectPackageJSON = require( path.join( process.cwd(), 'package.json' ) );
-		namespace = upperCamelCase( projectPackageJSON.name );
-	}
-	catch ( err ) {}
+	let namespace = argv['php-namespace'] || 'ReactWPScripts';
 
 	const pkgName = require( path.join( __dirname, '..', 'package.json' ) ).name;
 	const reactWPScriptsPath = path.join( appPath, 'node_modules', pkgName );
