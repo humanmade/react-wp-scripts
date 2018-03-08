@@ -1,7 +1,9 @@
+/**
+ * Sets the start script for react-wp-scripts and moves
+ * loader.php to the project root folder.
+ */
 'use strict';
 
-// Sets the start script for react-wp-scripts
-// And move the loader.php to the project root folder
 process.on( 'unhandledRejection', err => {
 	throw err;
 } );
@@ -52,30 +54,29 @@ module.exports = function(
 	// Copy the loader.php
 	const loaderPath = path.join( reactWPScriptsPath, 'loader.php' );
 
-	function successMessage() {
-		console.log( chalk.green( 'React WP Scripts Loader copied to your project root folder.' ) );
-		console.log( chalk.green( 'Please, follow instructions to add PHP to enqueue your assets:' ) );
-		console.log( chalk.blue( 'https://github.com/humanmade/react-wp-scripts#react-wp-scripts' ) );
-	}
-
 	const destinationFile = path.join( appPath, 'react-wp-scripts.php' );
 	fs.copy( loaderPath, destinationFile )
-		.then( () => {
+		.then( () => new Promise( ( resolve, reject ) => {
 			// Replace %%NAMESPACE%% for the specified namespace
 			fs.readFile( destinationFile, 'utf8', function( err, data ) {
 				if ( err ) {
-					console.log( err );
+					return reject( err );
 				}
 
 				var result = data.replace( '%%NAMESPACE%%', namespace );
 				fs.writeFile( destinationFile, result, 'utf8', function( err ) {
 					if ( err ) {
-						return console.log( err );
+						return reject( err );
 					}
+					resolve();
 				} );
 			} );
+		} ) )
+		.then( () => {
+			console.log( chalk.green( 'React WP Scripts Loader copied to your project root folder.' ) );
+			console.log( chalk.green( 'Please follow these instructions to enqueue your assets in PHP:' ) );
+			console.log( chalk.blue( 'https://github.com/humanmade/react-wp-scripts#react-wp-scripts' ) );
 		} )
-		.then( () => successMessage() )
 		.catch( err => {
 			console.log( chalk.bgRed( 'React WP Scripts loader could not be copied to your root folder. Error details:' ) );
 			console.log( chalk.red( err ) );
