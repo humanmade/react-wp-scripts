@@ -23,7 +23,6 @@
     "chalk": "^2.3.2",
     "minimist": "^1.2.0",
     "react-scripts": "1.0.17",
-    "signal-exit": "^3.0.2",
-    "uppercamelcase": "^3.0.0"
+    "signal-exit": "^3.0.2"
   }
 }
