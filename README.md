@@ -2,15 +2,50 @@
 
 A wrapper for create-react-app's [`react-scripts`](https://github.com/facebookincubator/create-react-app/tree/master/packages/react-scripts) to allow seamless usage of scripts and styles served from `webpack-dev-server` while developing a theme or plugin.
 
-**Important Note**: This project is brand new, and largely untested. We recommend using it as a learning tool rather than depending on it for critical development work.
+`react-wp-scripts` includes `create-react-wp-plugin` and `create-react-wp-theme`, which work just like [`create-react-app`](https://github.com/facebook/create-react-app).
 
-## Installation & Usage
+## Easy Setup
 
-Run `create-react-app --scripts-version react-wp-scripts --php-namespace="Your_Namespace" /path/to/your/project/folder` to generate a new create-react-app project configured to use these custom scripts.
+The easiest way to get started with `react-wp-scripts` for new projects is to use the setup command to create a new project:
 
-The file `react-wp-scripts.php` will be created within your generated project folder. Replace `Your_Namespace` with the PHP namespace you would like to use for this file; it will default to `ReactWPScripts`.
+```sh
+# For plugins:
+npx create-react-wp-plugin my-app
 
-Once installed, you can require this file from your theme or plugin code:
+# For themes:
+npx create-react-wp-theme my-app
+```
+
+You'll get a plugin or theme ready to activate in WordPress. You'll also want to start the JS development server:
+
+```sh
+cd my-app
+npm start
+```
+
+You can use any of the normal `react-scripts` [commands](https://github.com/facebookincubator/create-react-app/blob/master/README.md#npm-start-or-yarn-start) as normal while you develop.
+
+### Adding to an Existing Project
+
+If you already have a project created with `create-react-app`, you can easily switch it to `react-wp-scripts`:
+
+```sh
+npm install --save react-wp-scripts
+```
+
+You'll need to edit the `scripts` in your `package.json`. Replace `react-scripts` with `react-wp-scripts`:
+
+```json
+  "scripts": {
+    "start": "react-wp-scripts start",
+    "build": "react-wp-scripts build",
+    "test": "react-wp-scripts test --env=jsdom",
+    "eject": "react-wp-scripts eject"
+  }
+```
+
+Finally, you'll need to load your assets into WordPress. Copy [the loader file](packages/react-wp-scripts/template/common/loader.php) into your project, and replace `%%NAMESPACE%%` with your desired namespace. Then, hook it in to WordPress:
+
 ```php
 require __DIR__ . '/react-wp-scripts.php';
 
@@ -25,8 +60,6 @@ add_action( 'wp_enqueue_scripts', 'myproject_enqueue_assets' );
 ```
 
 This will load all generated JS and CSS into your theme or plugin.
-
-You may now use the `react-scripts` [commands](https://github.com/facebookincubator/create-react-app/blob/master/README.md#npm-start-or-yarn-start) as normal while you develop.
 
 ## PHP Interface
 
