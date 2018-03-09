@@ -1,0 +1,25 @@
+{
+	"name": "create-react-wp-theme",
+	"description": "Easily create a React-based WordPress theme.",
+	"version": "0.0.1",
+	"contributors": [
+		"Ryan McCue",
+		"K. Adam White",
+		"Human Made"
+	],
+	"license": "GPL-2.0+",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/humanmade/react-wp-scripts.git"
+	},
+	"bugs": {
+		"url": "https://github.com/humanmade/react-wp-scripts/issues"
+	},
+	"homepage": "https://github.com/humanmade/react-wp-scripts#readme",
+	"bin": {
+		"create-react-wp-theme": "./index.js"
+	},
+	"dependencies": {
+		"@humanmade/create-react-wp-project": "^0.0.1"
+	}
+}
