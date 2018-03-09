@@ -6,35 +6,29 @@ A wrapper for create-react-app's [`react-scripts`](https://github.com/facebookin
 
 ## Installation & Usage
 
-Run `create-react-app --scripts-version react-wp-scripts --php-namespace="Your_Namespace" /path/to/your/project/folder`
-Replace `Your_Namespace` with any name you'd like to use for your PHP namespace. Default is `ReactWPScripts`
+Run `create-react-app --scripts-version react-wp-scripts --php-namespace="Your_Namespace" /path/to/your/project/folder` to generate a new create-react-app project configured to use these custom scripts.
 
-A new `react-wp-scripts.php` will be created on your generated project folder.
+The file `react-wp-scripts.php` will be created within your generated project folder. Replace `Your_Namespace` with the PHP namespace you would like to use for this file; it will default to `ReactWPScripts`.
 
-
-Once installed, change your `start` script in `package.json` from
-
-```
-"start": "react-scripts start",
-```
-to
-```
-"start": "react-wp-scripts start",
-```
-
-Copy this code into your theme/plugin:
+Once installed, you can require this file from your theme or plugin code:
 ```php
 require __DIR__ . '/react-wp-scripts.php';
 
-function mytheme_enqueue_assets() {
+function myproject_enqueue_assets() {
+	// In a theme, pass in the stylesheet directory:
 	\ReactWPScripts\enqueue_assets( get_stylesheet_directory() );
+
+	// In a plugin, pass the plugin dir path:
+	\ReactWPScripts\enqueue_assets( plugin_dir_path( __FILE__ ) );
 }
-add_action( 'wp_enqueue_scripts', 'mytheme_enqueue_assets' );
+add_action( 'wp_enqueue_scripts', 'myproject_enqueue_assets' );
 ```
 
 This will load all generated JS and CSS into your theme or plugin.
 
-From now on, follow the common `react-scripts` [commands](https://github.com/facebookincubator/create-react-app/blob/master/README.md#npm-start-or-yarn-start)
+You may now use the `react-scripts` [commands](https://github.com/facebookincubator/create-react-app/blob/master/README.md#npm-start-or-yarn-start) as normal while you develop.
+
+## PHP Interface
 
 ### `enqueue_assets`
 
