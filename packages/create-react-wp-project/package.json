@@ -1,0 +1,20 @@
+{
+	"name": "@humanmade/create-react-wp-project",
+	"description": "Private tools shared between create-react-wp-plugin and create-react-wp-theme.",
+	"version": "0.0.1",
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"chalk": "^1.1.1",
+		"commander": "^2.9.0",
+		"create-react-app": "^1.5.2",
+		"envinfo": "3.4.2",
+		"fs-extra": "^1.0.0",
+		"semver": "^5.0.3",
+		"tar-pack": "^3.4.0",
+		"tmp": "0.0.31",
+		"uppercamelcase": "^3.0.0",
+		"validate-npm-package-name": "^3.0.0"
+	}
+}

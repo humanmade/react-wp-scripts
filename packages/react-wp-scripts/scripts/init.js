@@ -24,6 +24,7 @@ module.exports = function(
 
 	// Parse a namespace based on the name of the package
 	const namespace = argv['php-namespace'] || 'ReactWPScripts';
+	const usingCRWP = argv['using-crwp'] || false;
 
 	const pkgName = require( path.join( __dirname, '..', 'package.json' ) ).name;
 	const reactWPScriptsPath = path.join( appPath, 'node_modules', pkgName );
@@ -48,9 +49,9 @@ module.exports = function(
 	);
 
 	// Copy the loader.php
-	const loaderPath = path.join( reactWPScriptsPath, 'loader.php' );
+	const loaderPath = path.join( reactWPScriptsPath, 'template', 'common', 'loader.php' );
 
-	const destinationFile = path.join( appPath, 'react-wp-scripts.php' );
+	const destinationFile = path.join( appPath, 'loader.php' );
 	fs.copy( loaderPath, destinationFile )
 		.then( () => new Promise( ( resolve, reject ) => {
 			// Replace %%NAMESPACE%% for the specified namespace
@@ -69,9 +70,11 @@ module.exports = function(
 			} );
 		} ) )
 		.then( () => {
-			console.log( chalk.green( 'React WP Scripts Loader copied to your project root folder.' ) );
-			console.log( chalk.green( 'Please follow these instructions to enqueue your assets in PHP:' ) );
-			console.log( chalk.blue( 'https://github.com/humanmade/react-wp-scripts#react-wp-scripts' ) );
+			if ( ! usingCRWP ) {
+				console.log( chalk.green( 'React WP Scripts Loader copied to your project root folder.' ) );
+				console.log( chalk.green( 'Please follow these instructions to enqueue your assets in PHP:' ) );
+				console.log( chalk.blue( 'https://github.com/humanmade/react-wp-scripts#react-wp-scripts' ) );
+			}
 		} )
 		.catch( err => {
 			console.log( chalk.bgRed( 'React WP Scripts loader could not be copied to your root folder. Error details:' ) );

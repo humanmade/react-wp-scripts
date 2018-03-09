@@ -3,7 +3,7 @@
  * Entrypoint for the theme.
  */
 
-namespace %%NAMESPACE%%;
+namespace %%NAMESPACE%%\Loader;
 
 /**
  * Is this a development environment?
