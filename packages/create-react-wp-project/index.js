@@ -110,8 +110,6 @@ module.exports = function ( projectType, packageJson ) {
 	// Resolve the supplied path into an actual name.
 	const fullProjectPath = path.resolve( process.cwd(), projectName );
 	const autoNamespace = upperCamelCase( path.basename( fullProjectPath ) );
-	// console.log( autoNamespace );
-	// return;
 
 	// Run create-react-app with all the additional arguments.
 	runCRA( args.slice( 2 ), autoNamespace )
