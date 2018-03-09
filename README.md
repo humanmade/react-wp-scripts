@@ -1,8 +1,10 @@
 # react-wp-scripts
 
-A wrapper for create-react-app's [`react-scripts`](https://github.com/facebookincubator/create-react-app/tree/master/packages/react-scripts) to allow seamless usage of scripts and styles served from `webpack-dev-server` while developing a theme or plugin.
+Create React-based WordPress plugins and themes with no build configuration, just like [Create React App](https://github.com/facebook/create-react-app).
 
-`react-wp-scripts` includes `create-react-wp-plugin` and `create-react-wp-theme`, which work just like [`create-react-app`](https://github.com/facebook/create-react-app).
+* [Creating a Plugin or Theme](#easy-setup) - How to create a React-based plugin or theme.
+* [Adding to an Existing Project](#adding-to-an-existing-project) - How to add `react-wp-scripts` to your existing React project.
+* [User Guide](packages/react-wp-scripts/README.md) - How to develop plugins and themes bootstrapped with `react-wp-scripts`
 
 ## Easy Setup
 
@@ -61,17 +63,6 @@ add_action( 'wp_enqueue_scripts', 'myproject_enqueue_assets' );
 
 This will load all generated JS and CSS into your theme or plugin.
 
-## PHP Interface
-
-### `enqueue_assets`
-
-The `enqueue_assets` function takes two arguments: the filesystem path to the project directory containing the `src` and `build` folders, and an optional array argument which may be used to customize script handles and dependencies. Available options:
-
-- `base_url`: The URL of the project base that contains the `src` and `build` directories. If not specified, this URL will be inferred from the provided directory path string.
-- `handle`: The handle to use when registering the app's script and stylesheet. This will default to the last part of the directory passed to enqueue_assets.
-- `scripts`: An array of script dependencies to load before your bundle.
-- `styles`: An array of stylesheet dependencies to load before your bundle.
-
 ## How It Works
 
 This project solves two issues that prevent seamless usage of Webpack projects in WordPress themes and plugins:
@@ -86,17 +77,3 @@ Running `npm start`, on the other hand, doesn't output a thing: this is because 
 `react-wp-scripts` wraps the default `react-scripts` "start" command with code that tweaks the development Webpack and `webpack-dev-server` configuration objects, injecting cross-origin headers, a `webpack-manifest-plugin` plugin configured to output from within `webpack-dev-server`, and other optimizations to allow WordPress and the Webpack build to properly communicate. All successful builds will now create an `assets-manifest.json` file, either at the project root (when the development server is running) or in the `build/` directory (as part of a static build).
 
 Finally, the PHP in `loader.php` uses the location of the generated `assets-manifest.json` file to enqueue scripts either from the development server or from the static `build/` directory.
-
-## Troubleshooting
-
-### Server will not start
-
-If the development server will not start or WordPress is showing script errors, try deleting the `assets-manifest.json` in the project root then re-start the development server.
-
-### Scripts do not load
-
-If the development server is not running, the root `assets-manifest.json` is not present, and scripts still will not load, re-run `npm run build` to re-generate any build assets that may be missing.
-
-### Fatal Error: Cannot redeclare ReactWPScripts...
-
-If you get an error that you cannot reduplicate a method in the `ReactWPScripts` namespace, the cause is likely that two copies of `loader.php` are present in separate plugins or themes. Switch the copy in the plugin or theme under development to use a different namespace to avoid collision.
