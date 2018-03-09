@@ -48,7 +48,7 @@ module.exports = function(
 	);
 
 	// Copy the loader.php
-	const loaderPath = path.join( reactWPScriptsPath, 'loader.php' );
+	const loaderPath = path.join( reactWPScriptsPath, 'template', 'common', 'loader.php' );
 
 	const destinationFile = path.join( appPath, 'react-wp-scripts.php' );
 	fs.copy( loaderPath, destinationFile )
