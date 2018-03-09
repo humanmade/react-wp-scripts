@@ -2,6 +2,9 @@
 	"name": "@humanmade/create-react-wp-project",
 	"description": "Private tools shared between create-react-wp-plugin and create-react-wp-theme.",
 	"version": "0.0.1",
+	"publishConfig": {
+		"access": "public"
+	},
 	"dependencies": {
 		"chalk": "^1.1.1",
 		"commander": "^2.9.0",
