@@ -15,5 +15,5 @@ function enqueue_assets() {
 	// Add additional options here:
 	$options = [];
 
-	enqueue_assets( plugin_dir_path( __FILE__ ), $options );
+	Loader\enqueue_assets( plugin_dir_path( __FILE__ ), $options );
 }

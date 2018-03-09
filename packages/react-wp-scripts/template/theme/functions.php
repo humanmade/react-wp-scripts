@@ -16,5 +16,5 @@ function enqueue_assets() {
 	// Add additional options here:
 	$options = [];
 
-	enqueue_assets( get_stylesheet_directory(), $options );
+	Loader\enqueue_assets( get_stylesheet_directory(), $options );
 }
