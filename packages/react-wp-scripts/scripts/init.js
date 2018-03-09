@@ -51,7 +51,7 @@ module.exports = function(
 	// Copy the loader.php
 	const loaderPath = path.join( reactWPScriptsPath, 'template', 'common', 'loader.php' );
 
-	const destinationFile = path.join( appPath, 'react-wp-scripts.php' );
+	const destinationFile = path.join( appPath, 'loader.php' );
 	fs.copy( loaderPath, destinationFile )
 		.then( () => new Promise( ( resolve, reject ) => {
 			// Replace %%NAMESPACE%% for the specified namespace
