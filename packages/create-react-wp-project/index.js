@@ -18,7 +18,7 @@ function runCRA( args, namespace ) {
 	args.unshift(
 		'--using-crwp',
 		'--scripts-version',
-		'file:' + __dirname + '/../react-wp-scripts',
+		'react-wp-scripts',
 		'--php-namespace',
 		namespace,
 	);
