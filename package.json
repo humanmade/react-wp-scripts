@@ -1,7 +1,7 @@
 {
   "name": "react-wp-scripts",
   "description": "A wrapper for react-scripts to allow seamless usage of webpack-dev-server while developing a WordPress theme or plugin.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "contributors": [
     "Ryan McCue",
     "K. Adam White",
