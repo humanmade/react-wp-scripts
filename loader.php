@@ -151,10 +151,11 @@ function enqueue_assets( $directory, $opts = [] ) {
 	// There will be at most one JS and one CSS file in vanilla Create React App manifests.
 	$has_css = false;
 	foreach ( $assets as $asset_path ) {
-		$is_js = preg_match( '/\.js$/', $asset_path );
-		$is_css = preg_match( '/\.css$/', $asset_path );
+		$is_js    = preg_match( '/\.js$/', $asset_path );
+		$is_css   = preg_match( '/\.css$/', $asset_path );
+		$is_chunk = preg_match( '/\.chunk\./', $asset_path );
 
-		if ( ! $is_js && ! $is_css ) {
+		if ( ( ! $is_js && ! $is_css ) || $is_chunk ) {
 			// Assets such as source maps and images are also listed; ignore these.
 			continue;
 		}
