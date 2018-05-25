@@ -24,8 +24,28 @@ const overrideWebpackConfig = ( config, devServer ) => {
 	// Replace the react-dev-utils webpackHotDevClient with a version patched to
 	// correctly detect the dev server host & port for socket requests.
 	const hotClient = require.resolve( 'react-dev-utils/webpackHotDevClient' );
-	const hotClientIndex = config.entry.indexOf( hotClient );
-	config.entry.splice(hotClientIndex, 1, require.resolve( '../overrides/webpackHotDevClient' ) );
+
+	if ( config.entry instanceof Array ) {
+		const hotClientIndex = config.entry.indexOf( hotClient );
+		config.entry.splice( hotClientIndex, 1, require.resolve( '../overrides/webpackHotDevClient' ) );
+	}
+
+	if ( config.entry instanceof Object ) {
+		Object.keys( config.entry ).forEach( key => {
+			const entry = config.entry[key];
+
+			if ( entry instanceof String && entry === hotClient ) {
+				config.entry[key] = require.resolve( '../overrides/webpackHotDevClient' );
+			}
+
+			if ( entry instanceof Array ) {
+				const hotClientIndex = entry.indexOf( hotClient );
+				if ( hotClientIndex >= 0 ) {
+					config.entry[key].splice( hotClientIndex, 1, require.resolve( '../overrides/webpackHotDevClient' ) );
+				}
+			}
+		} );
+	}
 
 	// Also patch in a ManifestPlugin instance configured to emit from within
 	// webpack-dev-server. This file contains a mapping of all asset filenames
