@@ -6,9 +6,13 @@ A wrapper for create-react-app's [`react-scripts`](https://github.com/facebookin
 
 ## Installation & Usage
 
-Run `create-react-app --scripts-version react-wp-scripts --php-namespace="Your_Namespace" /path/to/your/project/folder` to generate a new create-react-app project configured to use these custom scripts.
+Run `npx create-react-app app-name --scripts-version react-wp-scripts --php-namespace="Your_Namespace" /path/to/your/project/folder` to generate a new create-react-app project configured to use these custom scripts. 
 
-The file `react-wp-scripts.php` will be created within your generated project folder. Replace `Your_Namespace` with the PHP namespace you would like to use for this file; it will default to `ReactWPScripts`.
+- Replace `app-name` with the name of the app, as you want it to appear in the name index of package.json.
+- Replace `Your_Namespace` with the PHP namespace you would like to use for this file; it will default to `ReactWPScripts`.
+- Replace `/path/to/your/project/folder` with the directory, relative to current working directory to generate files in.
+
+The file `react-wp-scripts.php` will be created within your generated project folder. 
 
 Once installed, you can require this file from your theme or plugin code:
 ```php
