@@ -31,12 +31,10 @@ const overrideWebpackConfig = ( config, devServer ) => {
 			config.entry.splice( hotClientIndex, 1, require.resolve( '../overrides/webpackHotDevClient' ) );
 		}
 	} else if ( config.entry instanceof Object ) {
-		Object.entries( config.entry ).forEach( ( key, entry ) => {
+		Object.entries( config.entry ).forEach( ( [ key, entry ] ) => {
 			if ( entry === hotClient ) {
 				config.entry[key] = require.resolve( '../overrides/webpackHotDevClient' );
-			}
-
-			if ( Array.isArray( entry ) ) {
+			} else if ( Array.isArray( entry ) ) {
 				const hotClientIndex = entry.indexOf( hotClient );
 				if ( hotClientIndex >= 0 ) {
 					config.entry[key].splice( hotClientIndex, 1, require.resolve( '../overrides/webpackHotDevClient' ) );
