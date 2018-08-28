@@ -20,9 +20,9 @@
     "react-wp-scripts": "./bin/react-wp-scripts.js"
   },
   "dependencies": {
-    "chalk": "^2.3.2",
+    "chalk": "^2.4.1",
     "minimist": "^1.2.0",
-    "react-scripts": "^1.1.4",
+    "react-scripts": "^1.1.5",
     "signal-exit": "^3.0.2"
   }
 }
