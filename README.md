@@ -80,4 +80,6 @@ To fix this, you must enable HTTPS for the webpack server.
 0) Create a .env file in your plugin's root directory, if it does not exist.
 1) In .env add `HTTPS=true`
 2) Stop and restart the dev server.
-3) See [this PR for more information](https://github.com/facebook/create-react-app/pull/552)
+3) Load the new HTTPS localhost URL in the browser and dismiss any untrusted certificate warnings. 
+
+See [this PR](https://github.com/facebook/create-react-app/pull/552) for more information.
