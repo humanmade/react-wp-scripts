@@ -71,3 +71,15 @@ If the development server is not running, the root `assets-manifest.json` is not
 ### Fatal Error: Cannot redeclare ReactWPScripts...
 
 If you get an error that you cannot reduplicate a method in the `ReactWPScripts` namespace, the cause is likely that two copies of `loader.php` are present in separate plugins or themes. Switch the copy in the plugin or theme under development to use a different namespace to avoid collision.
+
+### 404 In WordPress When Loading Bundle On HTTPS Site
+By default create-react-app's webpack dev server does NOT use HTTPS. If your WordPress site uses HTTPS, you are likely to get a 404 error like `https://localhost:3000/static/js/bundle.js` in WordPress, even though the webpack dev server, when accessed directly works fine.
+
+To fix this, you must enable HTTPS for the webpack server. 
+
+0) Create a .env file in your plugin's root directory, if it does not exist.
+1) In .env add `HTTPS=true`
+2) Stop and restart the dev server.
+3) Load the new HTTPS localhost URL in the browser and dismiss any untrusted certificate warnings. 
+
+See [this PR](https://github.com/facebook/create-react-app/pull/552) for more information.
