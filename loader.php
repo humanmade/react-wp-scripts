@@ -3,7 +3,7 @@
  * Entrypoint for the theme.
  */
 
-namespace ReactWPScripts;
+namespace %%NAMESPACE%%;
 
 /**
  * Is this a development environment?
@@ -25,7 +25,7 @@ function load_asset_file( $path ) {
 		return null;
 	}
 	$contents = file_get_contents( $path );
-	if ( empty( $path ) ) {
+	if ( empty( $contents ) ) {
 		return null;
 	}
 	return json_decode( $contents, true );
@@ -68,21 +68,38 @@ function get_assets_list( string $directory ) {
  * @return string|null
  */
 function infer_base_url( string $path ) {
-	if ( strpos( $path, get_stylesheet_directory() ) === 0 ) {
-		return get_theme_file_uri( substr( $path, strlen( get_stylesheet_directory() ) ) );
+	$path = wp_normalize_path( $path );
+
+	$stylesheet_directory = wp_normalize_path( get_stylesheet_directory() );
+	if ( strpos( $path, $stylesheet_directory ) === 0 ) {
+		return get_theme_file_uri( substr( $path, strlen( $stylesheet_directory ) ) );
 	}
 
-	if ( strpos( $path, get_template_directory() ) === 0 ) {
-		return get_theme_file_uri( substr( $path, strlen( get_template_directory() ) ) );
+	$template_directory = wp_normalize_path( get_template_directory() );
+	if ( strpos( $path, $template_directory ) === 0 ) {
+		return get_theme_file_uri( substr( $path, strlen( $template_directory ) ) );
 	}
 
 	// Any path not known to exist within a theme is treated as a plugin path.
-	$plugin_path = plugin_dir_path( __FILE__ );
+	$plugin_path = get_plugin_basedir_path();
 	if ( strpos( $path, $plugin_path ) === 0 ) {
-		return plugin_dir_url( __FILE__ ) . substr( $path, strlen( $plugin_path ) );
+		return plugin_dir_url( __FILE__ ) . substr( $path, strlen( $plugin_path ) + 1 );
 	}
 
 	return '';
+}
+
+/**
+ * Return the path of the plugin basedir.
+ *
+ * @return string
+ */
+function get_plugin_basedir_path() {
+	$plugin_dir_path = wp_normalize_path( plugin_dir_path( __FILE__ ) );
+
+	$plugins_dir_path = wp_normalize_path( trailingslashit( WP_PLUGIN_DIR ) );
+
+	return substr( $plugin_dir_path, 0, strpos( $plugin_dir_path, '/', strlen( $plugins_dir_path ) + 1 ) );
 }
 
 /**
@@ -147,11 +164,13 @@ function enqueue_assets( $directory, $opts = [] ) {
 	}
 
 	// There will be at most one JS and one CSS file in vanilla Create React App manifests.
+	$has_css = false;
 	foreach ( $assets as $asset_path ) {
-		$is_js = preg_match( '/\.js$/', $asset_path );
-		$is_css = preg_match( '/\.css$/', $asset_path );
+		$is_js    = preg_match( '/\.js$/', $asset_path );
+		$is_css   = preg_match( '/\.css$/', $asset_path );
+		$is_chunk = preg_match( '/\.chunk\./', $asset_path );
 
-		if ( ! $is_js && ! $is_css ) {
+		if ( ( ! $is_js && ! $is_css ) || $is_chunk ) {
 			// Assets such as source maps and images are also listed; ignore these.
 			continue;
 		}
@@ -160,15 +179,28 @@ function enqueue_assets( $directory, $opts = [] ) {
 			wp_enqueue_script(
 				$opts['handle'],
 				get_asset_uri( $asset_path, $base_url ),
-				[],
+				$opts['scripts'],
 				null,
 				true
 			);
 		} else if ( $is_css ) {
+			$has_css = true;
 			wp_enqueue_style(
 				$opts['handle'],
-				get_asset_uri( $asset_path, $base_url )
+				get_asset_uri( $asset_path, $base_url ),
+				$opts['styles']
 			);
 		}
+	}
+
+	// Ensure CSS dependencies are always loaded, even when using CSS-in-JS in
+	// development.
+	if ( ! $has_css ) {
+		wp_register_style(
+			$opts['handle'],
+			null,
+			$opts['styles']
+		);
+		wp_enqueue_style( $opts['handle'] );
 	}
 }

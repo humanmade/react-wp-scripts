@@ -1,48 +1,38 @@
 # react-wp-scripts
 
-A wrapper for create-react-app's `react-scripts` to allow seamless usage of scripts and styles served from `webpack-dev-server` while developing a theme or plugin.
+A wrapper for create-react-app's [`react-scripts`](https://github.com/facebookincubator/create-react-app/tree/master/packages/react-scripts) to allow seamless usage of scripts and styles served from `webpack-dev-server` while developing a theme or plugin.
 
 **Important Note**: This project is brand new, and largely untested. We recommend using it as a learning tool rather than depending on it for critical development work.
 
 ## Installation & Usage
 
-From the root directory of your `create-react-app`-generated project, run
+Run `npx create-react-app app-name --scripts-version react-wp-scripts --php-namespace="Your_Namespace" /path/to/your/project/folder` to generate a new create-react-app project configured to use these custom scripts. 
 
-```sh
-npm install react-wp-scripts
-```
+- Replace `app-name` with the name of the app, as you want it to appear in the name index of package.json.
+- Replace `Your_Namespace` with the PHP namespace you would like to use for this file; it will default to `ReactWPScripts`.
+- Replace `/path/to/your/project/folder` with the directory, relative to current working directory to generate files in.
 
-Once installed, change your `start` script in `package.json` from
+The file `react-wp-scripts.php` will be created within your generated project folder. 
 
-```
-"start": "react-scripts start",
-```
-to
-```
-"start": "react-wp-scripts start",
-```
-
-Copy `loader.php` from the module to your project root (_e.g._ `cp node_modules/react-wp-scripts/loader.php .` on OSX/Linux), then copy this code into your theme:
-
+Once installed, you can require this file from your theme or plugin code:
 ```php
-require __DIR__ . '/loader.php';
+require __DIR__ . '/react-wp-scripts.php';
 
-function mytheme_enqueue_assets() {
+function myproject_enqueue_assets() {
+	// In a theme, pass in the stylesheet directory:
 	\ReactWPScripts\enqueue_assets( get_stylesheet_directory() );
-}
-add_action( 'wp_enqueue_scripts', 'mytheme_enqueue_assets' );
-```
-or copy this code into your plugin:
-```php
-require __DIR__ . '/loader.php';
 
-function myplugin_enqueue_assets() {
+	// In a plugin, pass the plugin dir path:
 	\ReactWPScripts\enqueue_assets( plugin_dir_path( __FILE__ ) );
 }
-add_action( 'wp_enqueue_scripts', 'myplugin_enqueue_assets' );
+add_action( 'wp_enqueue_scripts', 'myproject_enqueue_assets' );
 ```
 
 This will load all generated JS and CSS into your theme or plugin.
+
+You may now use the `react-scripts` [commands](https://github.com/facebookincubator/create-react-app/blob/master/README.md#npm-start-or-yarn-start) as normal while you develop.
+
+## PHP Interface
 
 ### `enqueue_assets`
 
@@ -81,3 +71,15 @@ If the development server is not running, the root `assets-manifest.json` is not
 ### Fatal Error: Cannot redeclare ReactWPScripts...
 
 If you get an error that you cannot reduplicate a method in the `ReactWPScripts` namespace, the cause is likely that two copies of `loader.php` are present in separate plugins or themes. Switch the copy in the plugin or theme under development to use a different namespace to avoid collision.
+
+### 404 In WordPress When Loading Bundle On HTTPS Site
+By default create-react-app's webpack dev server does NOT use HTTPS. If your WordPress site uses HTTPS, you are likely to get a 404 error like `https://localhost:3000/static/js/bundle.js` in WordPress, even though the webpack dev server, when accessed directly works fine.
+
+To fix this, you must enable HTTPS for the webpack server. 
+
+0) Create a .env file in your plugin's root directory, if it does not exist.
+1) In .env add `HTTPS=true`
+2) Stop and restart the dev server.
+3) Load the new HTTPS localhost URL in the browser and dismiss any untrusted certificate warnings. 
+
+See [this PR](https://github.com/facebook/create-react-app/pull/552) for more information.
