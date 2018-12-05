@@ -142,11 +142,17 @@ function enqueue_assets( $directory, $opts = [] ) {
 	}
 
 	if ( empty( $assets ) ) {
-		handle_assets_error( [
-			'Development mode' => is_development() ? 'true' : 'false',
-			'Directory'        => $directory,
-			'Base URL'         => $opts['base_url'],
-		] );
+		if ( WP_DEBUG ) {
+			handle_assets_error( [
+				'Development mode' => is_development() ? 'true' : 'false',
+				'Directory'        => $directory,
+				'Base URL'         => $opts['base_url'],
+			] );
+		}
+		else {
+			// Trigger a warning, but otherwise do nothing.
+			trigger_error( 'React WP Scripts Error: Unable to find React asset manifest', E_USER_WARNING );
+		}
 	}
 
 	// There will be at most one JS and one CSS file in vanilla Create React App manifests.
@@ -232,7 +238,6 @@ function handle_assets_error( $details = [] ) {
 		}
 
 		.error-overlay .wrapper {
-			padding-top:70px;
 			width: 100%;
 			height: 100%;
 			box-sizing: border-box;
@@ -258,7 +263,7 @@ function handle_assets_error( $details = [] ) {
 			text-align: left;
 			font-family: Consolas, Menlo, monospace;
 			font-size: 13px;
-			line-height: 1.5;
+			line-height: 2;
 			color: var( --black );
 		}
 
@@ -276,14 +281,21 @@ function handle_assets_error( $details = [] ) {
 		.error-content {
 			padding:1rem;
 		}
+
+		code {
+			background-color: rgba(27,31,35,.05);
+			margin: 0;
+			padding: .2em .4em;
+		}
 	</style>
 	<div class="error-overlay">
 		<div class="wrapper primaryErrorStyle">
 			<div class="overlay">
 				<div class="header">Failed to render</div>
 				<div class="error-content primaryErrorStyle">
-					<p>React bundle could not be loaded</p>
-					<p>Make sure that webpack dev server is running or that you have build your assets</p>
+					Unable to find React asset manifest.
+					<code>react-wp-scripts</code> was unable to find either a development or production asset manifest.
+					Run <code>npm start</code> to start the development server or <code>npm run build</code> to build a production bundle.
 					<ul>
 						<?php foreach ( $details as $label => $value ) : ?>
 							<li><strong><?php echo esc_html( $label ); ?></strong>: <?php echo esc_html( $value ); ?></li>
