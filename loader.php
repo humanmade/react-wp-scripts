@@ -130,8 +130,6 @@ function enqueue_assets( $directory, $opts = [] ) {
 	$defaults = [
 		'base_url' => '',
 		'handle'   => basename( $directory ),
-		'scripts'  => [],
-		'styles'   => [],
 	];
 
 	$opts = wp_parse_args( $opts, $defaults );
@@ -144,7 +142,11 @@ function enqueue_assets( $directory, $opts = [] ) {
 	}
 
 	if ( empty( $assets ) ) {
-		// TODO: This should be an error condition.
+		if ( WP_DEBUG ) {
+			handle_assets_error();
+		}
+
+		trigger_error( 'React WP Scripts Error: Unable to find React asset manifest', E_USER_WARNING );
 		return;
 	}
 
@@ -188,4 +190,111 @@ function enqueue_assets( $directory, $opts = [] ) {
 		);
 		wp_enqueue_style( $opts['handle'] );
 	}
+}
+
+/**
+ * Display an overlay error when the React bundle cannot be loaded. It also stops the execution.
+ *
+ * @param array $details
+ */
+function handle_assets_error( $details = [] ) {
+	?>
+	<style>
+		/**
+		 * Copyright (c) 2015-present, Facebook, Inc.
+		 *
+		 * This source code is licensed under the MIT license found in the
+		 * LICENSE file in the root directory of this source tree.
+		 */
+
+		/* @flow */
+
+		html, body {
+			overflow: hidden;
+		}
+
+		.error-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			border: none;
+			z-index: 1000;
+
+			--black: #293238;
+			--dark-gray: #878e91;
+			--red: #ce1126;
+			--red-transparent: rgba(206, 17, 38, 0.05);
+			--light-red: #fccfcf;
+			--yellow: #fbf5b4;
+			--yellow-transparent: rgba(251, 245, 180, 0.3);
+			--white: #ffffff;
+		}
+
+		.error-overlay .wrapper {
+			width: 100%;
+			height: 100%;
+			box-sizing: border-box;
+			text-align: center;
+			background-color: var( --white );
+		}
+
+		.primaryErrorStyle {
+			background-color: var( --red-transparent );
+		}
+
+		.error-overlay .overlay {
+			position: relative;
+			display: inline-flex;
+			flex-direction: column;
+			height: 100%;
+			width: 1024px;
+			max-width: 100%;
+			overflow-x: hidden;
+			overflow-y: auto;
+			padding: 0.5rem;
+			box-sizing: border-box;
+			text-align: left;
+			font-family: Consolas, Menlo, monospace;
+			font-size: 13px;
+			line-height: 2;
+			color: var( --black );
+		}
+
+		.header {
+			font-size: 2em;
+			font-family: sans-serif;
+			color: var( --red );
+			white-space: pre-wrap;
+			margin: 0 2rem 0.75rem 0;
+			flex: 0 0 auto;
+			max-height: 50%;
+			overflow: auto;
+		}
+
+		.error-content {
+			padding:1rem;
+		}
+
+		code {
+			background-color: rgba(27,31,35,.05);
+			margin: 0;
+			padding: .2em .4em;
+		}
+	</style>
+	<div class="error-overlay">
+		<div class="wrapper primaryErrorStyle">
+			<div class="overlay">
+				<div class="header">Failed to render</div>
+				<div class="error-content primaryErrorStyle">
+					Unable to find React asset manifest.
+					<code>react-wp-scripts</code> was unable to find either a development or production asset manifest.
+					Run <code>npm start</code> to start the development server or <code>npm run build</code> to build a production bundle.
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php
+	die();
 }
