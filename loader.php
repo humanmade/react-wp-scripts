@@ -143,11 +143,7 @@ function enqueue_assets( $directory, $opts = [] ) {
 
 	if ( empty( $assets ) ) {
 		if ( WP_DEBUG ) {
-			handle_assets_error( [
-				'Development mode' => is_development() ? 'true' : 'false',
-				'Directory'        => $directory,
-				'Base URL'         => $opts['base_url'],
-			] );
+			handle_assets_error();
 		}
 		else {
 			// Trigger a warning, but otherwise do nothing.
@@ -296,16 +292,10 @@ function handle_assets_error( $details = [] ) {
 					Unable to find React asset manifest.
 					<code>react-wp-scripts</code> was unable to find either a development or production asset manifest.
 					Run <code>npm start</code> to start the development server or <code>npm run build</code> to build a production bundle.
-					<ul>
-						<?php foreach ( $details as $label => $value ) : ?>
-							<li><strong><?php echo esc_html( $label ); ?></strong>: <?php echo esc_html( $value ); ?></li>
-						<?php endforeach; ?>
-					</ul>
 				</div>
 			</div>
 		</div>
 	</div>
 	<?php
-	wp_die();
+	die();
 }
-
