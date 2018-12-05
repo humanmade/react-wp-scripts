@@ -145,10 +145,9 @@ function enqueue_assets( $directory, $opts = [] ) {
 		if ( WP_DEBUG ) {
 			handle_assets_error();
 		}
-		else {
-			// Trigger a warning, but otherwise do nothing.
-			trigger_error( 'React WP Scripts Error: Unable to find React asset manifest', E_USER_WARNING );
-		}
+
+		trigger_error( 'React WP Scripts Error: Unable to find React asset manifest', E_USER_WARNING );
+		return;
 	}
 
 	// There will be at most one JS and one CSS file in vanilla Create React App manifests.
