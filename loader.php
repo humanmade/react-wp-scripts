@@ -142,25 +142,11 @@ function enqueue_assets( $directory, $opts = [] ) {
 	}
 
 	if ( empty( $assets ) ) {
-		wp_enqueue_script(
-			$opts['handle'],
-			infer_base_url( trailingslashit( dirname( __FILE__ ) ) . 'scripts/error.js' ),
-			[],
-			null,
-			true
-		);
-
-		wp_localize_script(
-			$opts['handle'],
-			'reactWpScripts',
-			[
-				'devMode' => is_development(),
-				'directory' => $directory,
-				'opts' => $opts
-			]
-		);
-
-		return;
+		handle_assets_error( [
+			'Development mode' => is_development() ? 'true' : 'false',
+			'Directory'        => $directory,
+			'Base URL'         => $opts['base_url'],
+		] );
 	}
 
 	// There will be at most one JS and one CSS file in vanilla Create React App manifests.
@@ -204,3 +190,110 @@ function enqueue_assets( $directory, $opts = [] ) {
 		wp_enqueue_style( $opts['handle'] );
 	}
 }
+
+/**
+ * Display an overlay error when the React bundle cannot be loaded. It also stops the execution.
+ *
+ * @param array $details
+ */
+function handle_assets_error( $details = [] ) {
+	?>
+	<style>
+		/**
+		 * Copyright (c) 2015-present, Facebook, Inc.
+		 *
+		 * This source code is licensed under the MIT license found in the
+		 * LICENSE file in the root directory of this source tree.
+		 */
+
+		/* @flow */
+
+		html, body {
+			overflow: hidden;
+		}
+
+		.error-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			border: none;
+			z-index: 1000;
+
+			--black: #293238;
+			--dark-gray: #878e91;
+			--red: #ce1126;
+			--red-transparent: rgba(206, 17, 38, 0.05);
+			--light-red: #fccfcf;
+			--yellow: #fbf5b4;
+			--yellow-transparent: rgba(251, 245, 180, 0.3);
+			--white: #ffffff;
+		}
+
+		.error-overlay .wrapper {
+			padding-top:70px;
+			width: 100%;
+			height: 100%;
+			box-sizing: border-box;
+			text-align: center;
+			background-color: var( --white );
+		}
+
+		.primaryErrorStyle {
+			background-color: var( --red-transparent );
+		}
+
+		.error-overlay .overlay {
+			position: relative;
+			display: inline-flex;
+			flex-direction: column;
+			height: 100%;
+			width: 1024px;
+			max-width: 100%;
+			overflow-x: hidden;
+			overflow-y: auto;
+			padding: 0.5rem;
+			box-sizing: border-box;
+			text-align: left;
+			font-family: Consolas, Menlo, monospace;
+			font-size: 13px;
+			line-height: 1.5;
+			color: var( --black );
+		}
+
+		.header {
+			font-size: 2em;
+			font-family: sans-serif;
+			color: var( --red );
+			white-space: pre-wrap;
+			margin: 0 2rem 0.75rem 0;
+			flex: 0 0 auto;
+			max-height: 50%;
+			overflow: auto;
+		}
+
+		.error-content {
+			padding:1rem;
+		}
+	</style>
+	<div class="error-overlay">
+		<div class="wrapper primaryErrorStyle">
+			<div class="overlay">
+				<div class="header">Failed to render</div>
+				<div class="error-content primaryErrorStyle">
+					<p>React bundle could not be loaded</p>
+					<p>Make sure that webpack dev server is running or that you have build your assets</p>
+					<ul>
+						<?php foreach ( $details as $label => $value ) : ?>
+							<li><strong><?php echo esc_html( $label ); ?></strong>: <?php echo esc_html( $value ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<?php
+	wp_die();
+}
+
