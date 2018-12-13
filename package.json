@@ -22,7 +22,7 @@
   "dependencies": {
     "chalk": "^2.3.2",
     "minimist": "^1.2.0",
-    "react-scripts": "^1.1.5",
+    "react-scripts": "^2.1.1",
     "signal-exit": "^3.0.2"
   }
 }
