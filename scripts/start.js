@@ -9,7 +9,7 @@ const { choosePort } = require('react-dev-utils/WebpackDevServerUtils');
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-const ASSET_FILENAME = 'asset-manifest.json';
+const ASSET_FILENAME = 'dist/asset-manifest.json';
 const ASSET_FILE_PATH = path.join( process.cwd(), ASSET_FILENAME );
 
 fs.readFile( ASSET_FILE_PATH, ( err ) => {
