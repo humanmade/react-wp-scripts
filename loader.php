@@ -84,8 +84,16 @@ function filter_assets_list( array $assets ) {
  * @return string|null
  */
 function infer_base_url( string $path ) {
-	if ( strpos( $path, get_stylesheet_directory() ) === 0 ) {
-		return get_theme_file_uri( substr( $path, strlen( get_stylesheet_directory() ) ) );
+	$path = wp_normalize_path( $path );
+
+	$stylesheet_directory = wp_normalize_path( get_stylesheet_directory() );
+	if ( strpos( $path, $stylesheet_directory ) === 0 ) {
+		return get_theme_file_uri( substr( $path, strlen( $stylesheet_directory ) ) );
+	}
+
+	$template_directory = wp_normalize_path( get_template_directory() );
+	if ( strpos( $path, $template_directory ) === 0 ) {
+		return get_theme_file_uri( substr( $path, strlen( $template_directory ) ) );
 	}
 
 	if ( strpos( $path, get_template_directory() ) === 0 ) {
@@ -93,8 +101,25 @@ function infer_base_url( string $path ) {
 	}
 
 	// Any path not known to exist within a theme is treated as a plugin path.
-	$plugin_path = plugin_dir_path( $path );
-	return plugin_dir_url( $path ) . substr( $path, strlen( $plugin_path ) );
+	$plugin_path = get_plugin_basedir_path();
+	if ( strpos( $path, $plugin_path ) === 0 ) {
+		return plugin_dir_url( __FILE__ ) . substr( $path, strlen( $plugin_path ) + 1 );
+	}
+
+	return '';
+}
+
+/**
+ * Return the path of the plugin basedir.
+ *
+ * @return string
+ */
+function get_plugin_basedir_path() {
+	$plugin_dir_path = wp_normalize_path( plugin_dir_path( __FILE__ ) );
+
+	$plugins_dir_path = wp_normalize_path( trailingslashit( WP_PLUGIN_DIR ) );
+
+	return substr( $plugin_dir_path, 0, strpos( $plugin_dir_path, '/', strlen( $plugins_dir_path ) + 1 ) );
 }
 
 /**
