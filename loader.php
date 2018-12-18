@@ -25,7 +25,7 @@ function load_asset_file( $path ) {
 		return null;
 	}
 	$contents = file_get_contents( $path );
-	if ( empty( $contents ) ) {
+	if ( empty( $path ) ) {
 		return null;
 	}
 	return json_decode( $contents, true );
@@ -44,7 +44,7 @@ function get_assets_list( string $directory ) {
 		$dev_assets = load_asset_file( $directory . 'asset-manifest.json' );
 		// Fall back to build directory if there is any error loading the development manifest.
 		if ( ! empty( $dev_assets ) ) {
-			return array_values( $dev_assets );
+			return filter_assets_list( $dev_assets );
 		}
 	}
 
@@ -52,13 +52,29 @@ function get_assets_list( string $directory ) {
 
 	if ( ! empty( $production_assets ) ) {
 		// Prepend "build/" to all build-directory array paths.
-		return array_map(
-			function( $asset_path ) { return 'build/' . $asset_path; },
-			array_values( $production_assets )
-		);
+		return filter_assets_list( array_map(
+			function( $asset_path ) use ( $directory ) {
+				// Use realpath to remove default relative path and confirm file exists.
+				$real_path = realpath( $directory . 'build/' . $asset_path );
+				return substr( $real_path, strpos( $real_path, 'build/' ) );
+			},
+			$production_assets
+		) );
 	}
 
 	return null;
+}
+
+/**
+ * Filter the assets to remove all async chunks, the service worker and precache manifest.
+ *
+ * @param array $assets
+ * @return array
+ */
+function filter_assets_list( array $assets ) {
+	return array_filter( $assets, function ( $asset_path ) {
+		return ! preg_match( '/\/\d+(\.[^\/]+)?\.chunk\.|precache-manifest|service-worker/', $asset_path );
+	} );
 }
 
 /**
@@ -68,38 +84,17 @@ function get_assets_list( string $directory ) {
  * @return string|null
  */
 function infer_base_url( string $path ) {
-	$path = wp_normalize_path( $path );
-
-	$stylesheet_directory = wp_normalize_path( get_stylesheet_directory() );
-	if ( strpos( $path, $stylesheet_directory ) === 0 ) {
-		return get_theme_file_uri( substr( $path, strlen( $stylesheet_directory ) ) );
+	if ( strpos( $path, get_stylesheet_directory() ) === 0 ) {
+		return get_theme_file_uri( substr( $path, strlen( get_stylesheet_directory() ) ) );
 	}
 
-	$template_directory = wp_normalize_path( get_template_directory() );
-	if ( strpos( $path, $template_directory ) === 0 ) {
-		return get_theme_file_uri( substr( $path, strlen( $template_directory ) ) );
+	if ( strpos( $path, get_template_directory() ) === 0 ) {
+		return get_theme_file_uri( substr( $path, strlen( get_template_directory() ) ) );
 	}
 
 	// Any path not known to exist within a theme is treated as a plugin path.
-	$plugin_path = get_plugin_basedir_path();
-	if ( strpos( $path, $plugin_path ) === 0 ) {
-		return plugin_dir_url( __FILE__ ) . substr( $path, strlen( $plugin_path ) + 1 );
-	}
-
-	return '';
-}
-
-/**
- * Return the path of the plugin basedir.
- *
- * @return string
- */
-function get_plugin_basedir_path() {
-	$plugin_dir_path = wp_normalize_path( plugin_dir_path( __FILE__ ) );
-
-	$plugins_dir_path = wp_normalize_path( trailingslashit( WP_PLUGIN_DIR ) );
-
-	return substr( $plugin_dir_path, 0, strpos( $plugin_dir_path, '/', strlen( $plugins_dir_path ) + 1 ) );
+	$plugin_path = plugin_dir_path( $path );
+	return plugin_dir_url( $path ) . substr( $path, strlen( $plugin_path ) );
 }
 
 /**
@@ -130,6 +125,8 @@ function enqueue_assets( $directory, $opts = [] ) {
 	$defaults = [
 		'base_url' => '',
 		'handle'   => basename( $directory ),
+		'scripts'  => [],
+		'styles'   => [],
 	];
 
 	$opts = wp_parse_args( $opts, $defaults );
@@ -150,21 +147,33 @@ function enqueue_assets( $directory, $opts = [] ) {
 		return;
 	}
 
+	// Make runtime / bundle first up.
+	uksort( $assets, function ( $asset_path ) {
+		if ( strstr( $asset_path, 'runtime' ) || strstr( $asset_path, 'bundle' ) ) {
+			return -1;
+		}
+		return 1;
+	} );
+
 	// There will be at most one JS and one CSS file in vanilla Create React App manifests.
 	$has_css = false;
 	foreach ( $assets as $asset_path ) {
-		$is_js    = preg_match( '/\.js$/', $asset_path );
-		$is_css   = preg_match( '/\.css$/', $asset_path );
-		$is_chunk = preg_match( '/\.chunk\./', $asset_path );
+		$is_js      = preg_match( '/\.js$/', $asset_path );
+		$is_css     = preg_match( '/\.css$/', $asset_path );
+		$is_runtime = preg_match( '/(runtime|bundle)/', $asset_path );
 
-		if ( ( ! $is_js && ! $is_css ) || $is_chunk ) {
+		if ( ! $is_js && ! $is_css ) {
 			// Assets such as source maps and images are also listed; ignore these.
 			continue;
 		}
 
+		// Set a dynamic handle as we can have more than one JS entry point.
+		// Treats the runtime file as primary to make setting dependencies easier.
+		$handle = $opts['handle'] . ( $is_runtime ? '' : '-' . sanitize_key( basename( $asset_path ) ) );
+
 		if ( $is_js ) {
 			wp_enqueue_script(
-				$opts['handle'],
+				$handle,
 				get_asset_uri( $asset_path, $base_url ),
 				$opts['scripts'],
 				null,
@@ -173,7 +182,7 @@ function enqueue_assets( $directory, $opts = [] ) {
 		} else if ( $is_css ) {
 			$has_css = true;
 			wp_enqueue_style(
-				$opts['handle'],
+				$handle,
 				get_asset_uri( $asset_path, $base_url ),
 				$opts['styles']
 			);
@@ -191,6 +200,7 @@ function enqueue_assets( $directory, $opts = [] ) {
 		wp_enqueue_style( $opts['handle'] );
 	}
 }
+
 
 /**
  * Display an overlay error when the React bundle cannot be loaded. It also stops the execution.

@@ -39,8 +39,9 @@ module.exports = function(
 	const reactScriptsInit = require(scriptsPath);
 	reactScriptsInit( appPath, appName, verbose, originalDirectory, template );
 
-	// Setup the custom start script
+	// Setup the custom build script
 	appPackage.scripts.start = 'react-wp-scripts start';
+	appPackage.scripts.build = 'react-wp-scripts build';
 
 	fs.writeFileSync(
 		path.join( appPath, 'package.json' ),

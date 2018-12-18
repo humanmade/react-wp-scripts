@@ -8,6 +8,18 @@ const config = require( devConfig );
 const devServerConfig = require.resolve( 'react-scripts/config/webpackDevServer.config.js' );
 const createServerConfig = require( devServerConfig );
 
+// Load in common defaults for WP.
+const applyWpConfig = require( '../overrides/applyWpConfig' );
+
+// Override paths on require to shortcircuit index.html requirement.
+const requireMiddleware = require( 'require-middleware' );
+requireMiddleware.use((req, next) => {
+    if (req.request === '../config/paths' && req.path.indexOf( 'react-scripts/config/paths' ) >= 0) {
+        return require( 'react-wp-scripts/config/paths' );
+    }
+    next();
+});
+
 /**
  * Method to apply overrides to webpack dev config object.
  *
@@ -43,15 +55,21 @@ const overrideWebpackConfig = ( config, devServer ) => {
 		} );
 	}
 
-	// Also patch in a ManifestPlugin instance configured to emit from within
+	// Remove built-in manifest plugin.
+	config.plugins = config.plugins.filter( plugin => ! ( plugin instanceof ManifestPlugin ) );
+
+	// Patch in a ManifestPlugin instance configured to emit from within
 	// webpack-dev-server. This file contains a mapping of all asset filenames
 	// to their corresponding output URI so that WordPress can load relevant
 	// files from the dev server.
 	config.plugins.push(new ManifestPlugin({
 		basePath: config.output.publicPath,
-		fileName: 'asset-manifest.json',
+		fileName: '../asset-manifest.json',
 		writeToFileEmit: true,
 	}));
+
+	// Apply default config settings for WordPress.
+	config = applyWpConfig( config );
 
 	return config;
 };
