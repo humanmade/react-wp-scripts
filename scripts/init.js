@@ -39,7 +39,7 @@ module.exports = function(
 	const reactScriptsInit = require(scriptsPath);
 	reactScriptsInit( appPath, appName, verbose, originalDirectory, template );
 
-	// Setup the custom build script
+	// Setup the custom scripts
 	appPackage.scripts.start = 'react-wp-scripts start';
 	appPackage.scripts.build = 'react-wp-scripts build';
 
