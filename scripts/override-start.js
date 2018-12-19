@@ -12,13 +12,13 @@ const createServerConfig = require( devServerConfig );
 const applyWpConfig = require( '../overrides/applyWpConfig' );
 
 // Override paths on require to shortcircuit index.html requirement.
-const requireMiddleware = require( 'require-middleware' );
-requireMiddleware.use((req, next) => {
-    if (req.request === '../config/paths' && req.path.indexOf( 'react-scripts/config/paths' ) >= 0) {
-        return require( 'react-wp-scripts/config/paths' );
+const requireMiddleware = require('require-middleware');
+requireMiddleware.use( (req, next) => {
+    if ( req.request.indexOf('../config/') === 0 && req.path.indexOf('react-scripts/config') >= 0 ) {
+        return require( req.request );
     }
     next();
-});
+} );
 
 /**
  * Method to apply overrides to webpack dev config object.
@@ -62,16 +62,14 @@ const overrideWebpackConfig = ( config, devServer ) => {
 	// webpack-dev-server. This file contains a mapping of all asset filenames
 	// to their corresponding output URI so that WordPress can load relevant
 	// files from the dev server.
-	config.plugins.push(new ManifestPlugin({
+	config.plugins.push( new ManifestPlugin( {
 		basePath: config.output.publicPath,
 		fileName: '../asset-manifest.json',
 		writeToFileEmit: true,
-	}));
+	} ) );
 
 	// Apply default config settings for WordPress.
-	config = applyWpConfig( config );
-
-	return config;
+	return applyWpConfig( config );
 };
 
 /**

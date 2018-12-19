@@ -96,10 +96,6 @@ function infer_base_url( string $path ) {
 		return get_theme_file_uri( substr( $path, strlen( $template_directory ) ) );
 	}
 
-	if ( strpos( $path, get_template_directory() ) === 0 ) {
-		return get_theme_file_uri( substr( $path, strlen( get_template_directory() ) ) );
-	}
-
 	// Any path not known to exist within a theme is treated as a plugin path.
 	$plugin_path = get_plugin_basedir_path();
 	if ( strpos( $path, $plugin_path ) === 0 ) {
@@ -150,11 +146,18 @@ function enqueue_assets( $directory, $opts = [] ) {
 	$defaults = [
 		'base_url' => '',
 		'handle'   => basename( $directory ),
-		'scripts'  => [],
+		'scripts'  => [
+			'react',
+			'react-dom',
+		],
 		'styles'   => [],
 	];
 
 	$opts = wp_parse_args( $opts, $defaults );
+
+	// Ensure react & react-dom are dependencies.
+	$opts['scripts'] = array_merge( $opts['scripts'], [ 'react', 'react-dom' ] );
+	$opts['scripts'] = array_unique( $opts['scripts'] );
 
 	$assets = get_assets_list( $directory );
 
@@ -213,6 +216,13 @@ function enqueue_assets( $directory, $opts = [] ) {
 			);
 		}
 	}
+
+	// Add the generated public path to the build directory.
+	wp_add_inline_script(
+		$opts['handle'],
+		sprintf( 'var %%PUBLIC_PATH_VAR%% = %s;', wp_json_encode( $base_url . '/build/' ) ),
+		'before'
+	);
 
 	// Ensure CSS dependencies are always loaded, even when using CSS-in-JS in
 	// development.

@@ -1,9 +1,10 @@
-const paths = require('react-wp-scripts/config/paths');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
+const paths = require( 'react-wp-scripts/config/paths' );
+const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
+const InterpolateHtmlPlugin = require( 'react-dev-utils/InterpolateHtmlPlugin' );
+const { DefinePlugin } = require( 'webpack' );
 
 module.exports = config => {
-	const name = ( require(paths.appPackageJson).name || `rwps${ Date.now() }` ).replace( /[-_.\W]+/g, '' );
+	const appNameVar = require(paths.appPackageJson).name.replace( /[\W]+/g, '' );
 
 	// Remove HTML file output plugins.
 	config.plugins = config.plugins.filter( plugin => ! ( plugin instanceof HtmlWebpackPlugin ) );
@@ -16,7 +17,7 @@ module.exports = config => {
 
 	// Set a default JSONP function name to avoid conflicts with other instances
 	// of react-wp-scripts using code splitting.
-	config.output.jsonpFunction = `${name}JSONP`;
+	config.output.jsonpFunction = `${appNameVar}JSONP`;
 
 	// Set some useful externals based on what WP provides in v5.x.
 	config.externals = Object.assign( config.externals || {}, {
@@ -24,6 +25,7 @@ module.exports = config => {
 		react: 'React',
 		'react-dom': 'ReactDOM',
 		moment: 'moment',
+		lodash: 'lodash',
 	} );
 
 	return config;

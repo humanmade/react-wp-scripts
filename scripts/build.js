@@ -6,12 +6,12 @@ const paths = require('../config/paths');
 
 // Override paths on require to shortcircuit index.html requirement.
 const requireMiddleware = require('require-middleware');
-requireMiddleware.use((req, next) => {
-    if (req.request === '../config/paths' && req.path.indexOf('react-scripts/config/paths') >= 0) {
-        return require('react-wp-scripts/config/paths');
+requireMiddleware.use( (req, next) => {
+    if ( req.request.indexOf('../config/') === 0 && req.path.indexOf('react-scripts/config') >= 0 ) {
+        return require( req.request );
     }
     next();
-});
+} );
 
 const tmpPath = path.join( process.cwd(), 'public' );
 
