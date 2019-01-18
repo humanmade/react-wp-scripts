@@ -124,7 +124,7 @@ module.exports = function(
 						if ( err ) {
 							return reject( err );
 						}
-						if ( i + 1 === publicPathFiles.length  ) {
+						if ( i + 1 === publicPathFiles.length ) {
 							return resolve();
 						}
 					} );
