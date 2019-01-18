@@ -1,7 +1,6 @@
 const paths = require( 'react-wp-scripts/config/paths' );
 const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 const InterpolateHtmlPlugin = require( 'react-dev-utils/InterpolateHtmlPlugin' );
-const { DefinePlugin } = require( 'webpack' );
 
 module.exports = config => {
 	const appNameVar = require(paths.appPackageJson).name.replace( /[\W]+/g, '' );
