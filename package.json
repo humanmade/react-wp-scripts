@@ -22,7 +22,7 @@
   "dependencies": {
     "chalk": "^2.3.2",
     "minimist": "^1.2.0",
-    "react-scripts": "^2.1.1",
+    "react-scripts": "2.1.1",
     "require-middleware": "^1.0.0",
     "rimraf": "^2.6.2",
     "signal-exit": "^3.0.2"
