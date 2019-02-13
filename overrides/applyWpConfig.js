@@ -1,4 +1,4 @@
-const paths = require( 'react-wp-scripts/config/paths' );
+const paths = require( '../config/paths' );
 const HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 const InterpolateHtmlPlugin = require( 'react-dev-utils/InterpolateHtmlPlugin' );
 const { DefinePlugin } = require( 'webpack' );
