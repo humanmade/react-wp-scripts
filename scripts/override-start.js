@@ -3,8 +3,9 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 const ManifestPlugin = require( 'webpack-manifest-plugin' );
 
 // Load in the default configuration. This primes the require cache we will override below.
-const devConfig = require.resolve( 'react-scripts/config/webpack.config.dev.js' );
-const config = require( devConfig );
+const devConfig = require.resolve( 'react-scripts/config/webpack.config.js' );
+const configFactory = require( devConfig );
+const config = configFactory('development');
 const devServerConfig = require.resolve( 'react-scripts/config/webpackDevServer.config.js' );
 const createServerConfig = require( devServerConfig );
 
@@ -69,7 +70,7 @@ const overrideWebpackConfig = ( config, devServer ) => {
 	} ) );
 
 	// Apply default config settings for WordPress.
-	return applyWpConfig( config );
+	return () => applyWpConfig( config );
 };
 
 /**
