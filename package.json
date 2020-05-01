@@ -23,6 +23,12 @@
     "chalk": "^2.3.2",
     "minimist": "^1.2.0",
     "react-scripts": "^1.1.5",
-    "signal-exit": "^3.0.2"
-  }
+    "signal-exit": "^3.0.2",
+    "snyk": "^1.316.1"
+  },
+  "scripts": {
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
+  "snyk": true
 }
