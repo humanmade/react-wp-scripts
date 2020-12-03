@@ -11,6 +11,8 @@ process.on( 'unhandledRejection', err => {
 const fs = require( 'fs-extra' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
+const os = require('os');
+const rimraf = require('rimraf');
 
 const argv = require( 'minimist' )( process.argv.slice( 2 ) );
 
@@ -29,6 +31,8 @@ module.exports = function(
 	const reactWPScriptsPath = path.join( appPath, 'node_modules', pkgName );
 	const appPackage = require( path.join( appPath, 'package.json' ) );
 
+	const useTypeScript = appPackage.dependencies['typescript'] != null;
+
 	const scriptsPath = path.resolve(
 		process.cwd(),
 		'node_modules',
@@ -39,32 +43,91 @@ module.exports = function(
 	const reactScriptsInit = require(scriptsPath);
 	reactScriptsInit( appPath, appName, verbose, originalDirectory, template );
 
-	// Setup the custom start script
+	// Setup the custom scripts
 	appPackage.scripts.start = 'react-wp-scripts start';
+	appPackage.scripts.build = 'react-wp-scripts build';
+
+	// Set relative homepage
+	appPackage.homepage = '.';
 
 	fs.writeFileSync(
 		path.join( appPath, 'package.json' ),
 		JSON.stringify( appPackage, null, 2 )
 	);
 
-	// Copy the loader.php
-	const loaderPath = path.join( reactWPScriptsPath, 'loader.php' );
+	// Remove public folder
+	rimraf( path.join( appPath, 'public' ), () => {} );
 
-	const destinationFile = path.join( appPath, 'react-wp-scripts.php' );
-	fs.copy( loaderPath, destinationFile )
+	// Derive a var name we can use for a dynamic public path
+	const publicPathVar = `${ appName.replace( /[\W]+/g, '' ) }BuildURL`;
+
+	// Get relevant file paths
+	const publicPathPath = path.join( reactWPScriptsPath, 'template/src/publicPath.js' );
+	const publicPathDest = path.join( appPath, 'src/publicPath.js' );
+	const srcIndexPath = path.join( appPath, 'src', useTypeScript ? 'index.tsx' : 'index.js' );
+	const loaderPath = path.join( reactWPScriptsPath, 'loader.php' );
+	const loaderDest = path.join( appPath, 'react-wp-scripts.php' );
+
+	// Replace %%PUBLIC_PATH_VAR%% and process.env.PUBLIC_URL in these files
+	const publicPathFiles = [
+		path.join( appPath, 'src', 'serviceWorker.js' ),
+		publicPathDest,
+		loaderDest,
+	];
+
+	fs.copy( publicPathPath, publicPathDest )
+		// Insert import for public path file.
+		.then( () => new Promise( ( resolve, reject ) => {
+			fs.readFile( srcIndexPath, 'utf8', function( err, data ) {
+				if ( err ) {
+					return reject( err );
+				}
+
+				var result = `import './publicPath';${os.EOL}${data}`;
+				fs.writeFile( srcIndexPath, result, 'utf8', function( err ) {
+					if ( err ) {
+						return reject( err );
+					}
+					resolve();
+				} );
+			} );
+		} ) )
+		// Copy the loader.php
+		.then( () => fs.copy( loaderPath, loaderDest ) )
 		.then( () => new Promise( ( resolve, reject ) => {
 			// Replace %%NAMESPACE%% for the specified namespace
-			fs.readFile( destinationFile, 'utf8', function( err, data ) {
+			fs.readFile( loaderDest, 'utf8', function( err, data ) {
 				if ( err ) {
 					return reject( err );
 				}
 
 				var result = data.replace( '%%NAMESPACE%%', namespace );
-				fs.writeFile( destinationFile, result, 'utf8', function( err ) {
+				fs.writeFile( loaderDest, result, 'utf8', function( err ) {
 					if ( err ) {
 						return reject( err );
 					}
 					resolve();
+				} );
+			} );
+		} ) )
+		.then( () => new Promise( ( resolve, reject ) => {
+			publicPathFiles.forEach( ( filePath, i ) => {
+				fs.readFile( filePath, 'utf8', function( err, data ) {
+					if ( err ) {
+						return reject( err );
+					}
+
+					var result = data
+						.replace( '%%PUBLIC_PATH_VAR%%', `window.${publicPathVar}` )
+						.replace( 'process.env.PUBLIC_URL', `window.${publicPathVar}` );
+					fs.writeFile( filePath, result, 'utf8', function( err ) {
+						if ( err ) {
+							return reject( err );
+						}
+						if ( i + 1 === publicPathFiles.length ) {
+							return resolve();
+						}
+					} );
 				} );
 			} );
 		} ) )
@@ -77,4 +140,5 @@ module.exports = function(
 			console.log( chalk.bgRed( 'React WP Scripts loader could not be copied to your root folder. Error details:' ) );
 			console.log( chalk.red( err ) );
 		} );
+
 };
