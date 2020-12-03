@@ -118,8 +118,8 @@ module.exports = function(
 					}
 
 					var result = data
-						.replace( '%%PUBLIC_PATH_VAR%%', publicPathVar )
-						.replace( 'process.env.PUBLIC_URL', publicPathVar );
+						.replace( '%%PUBLIC_PATH_VAR%%', `window.${publicPathVar}` )
+						.replace( 'process.env.PUBLIC_URL', `window.${publicPathVar}` );
 					fs.writeFile( filePath, result, 'utf8', function( err ) {
 						if ( err ) {
 							return reject( err );
