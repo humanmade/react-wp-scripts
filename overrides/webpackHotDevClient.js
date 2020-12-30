@@ -4,6 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+// <REACT-WP-SCRIPTS>
+// Sections below modified from react-scripts to serve cross-domain.
+// </REACT-WP-SCRIPTS>
 
 'use strict';
 
@@ -57,6 +60,9 @@ if (module.hot && typeof module.hot.dispose === 'function') {
 	});
 }
 
+// <REACT-WP-SCRIPTS>
+// Replace connection creation to allow using the script's domain
+// (localhost:3000) rather than the web root.
 function getCurrentScriptSource() {
 	// `document.currentScript` is the most accurate way to find the current script,
 	// but is not supported in all browsers.
@@ -81,6 +87,7 @@ var connection = new SockJS(
 		pathname: '/sockjs-node',
 	})
 );
+// </REACT-WP-SCRIPTS>
 
 // Unlike WebpackDevServer client, we won't try to reconnect
 // to avoid spamming the console. Disconnect usually happens
