@@ -4,6 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+// <REACT-WP-SCRIPTS>
+// Sections below modified from react-scripts to serve cross-domain.
+// </REACT-WP-SCRIPTS>
 
 'use strict';
 
@@ -30,7 +33,9 @@ ErrorOverlay.setEditorHandler(function editorHandler(errorLocation) {
 			'?fileName=' +
 			window.encodeURIComponent(errorLocation.fileName) +
 			'&lineNumber=' +
-			window.encodeURIComponent(errorLocation.lineNumber || 1)
+			window.encodeURIComponent(errorLocation.lineNumber || 1) +
+			'&colNumber=' +
+			window.encodeURIComponent(errorLocation.colNumber || 1)
 	);
 });
 
@@ -39,7 +44,7 @@ ErrorOverlay.setEditorHandler(function editorHandler(errorLocation) {
 // runtime error. To prevent confusing behavior, we forcibly reload the entire
 // application. This is handled below when we are notified of a compile (code
 // change).
-// See https://github.com/facebookincubator/create-react-app/issues/3096
+// See https://github.com/facebook/create-react-app/issues/3096
 var hadRuntimeError = false;
 ErrorOverlay.startReportingRuntimeErrors({
 	onError: function() {
@@ -55,6 +60,9 @@ if (module.hot && typeof module.hot.dispose === 'function') {
 	});
 }
 
+// <REACT-WP-SCRIPTS>
+// Replace connection creation to allow using the script's domain
+// (localhost:3000) rather than the web root.
 function getCurrentScriptSource() {
 	// `document.currentScript` is the most accurate way to find the current script,
 	// but is not supported in all browsers.
@@ -79,6 +87,7 @@ var connection = new SockJS(
 		pathname: '/sockjs-node',
 	})
 );
+// </REACT-WP-SCRIPTS>
 
 // Unlike WebpackDevServer client, we won't try to reconnect
 // to avoid spamming the console. Disconnect usually happens

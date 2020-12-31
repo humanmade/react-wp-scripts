@@ -35,7 +35,12 @@ const overrideWebpackConfig = ( config, devServer ) => {
 
 	// Replace the react-dev-utils webpackHotDevClient with a version patched to
 	// correctly detect the dev server host & port for socket requests.
-	const hotClient = require.resolve( 'react-dev-utils/webpackHotDevClient' );
+	const hotClient = require.resolve( 'react-dev-utils/webpackHotDevClient', {
+		paths: [
+			// Resolve relative to the original config.
+			devConfig,
+		],
+	} );
 
 	if ( Array.isArray( config.entry ) ) {
 		const hotClientIndex = config.entry.indexOf( hotClient );
