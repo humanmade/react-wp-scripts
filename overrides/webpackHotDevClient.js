@@ -26,10 +26,38 @@ var launchEditorEndpoint = require('react-dev-utils/launchEditorEndpoint');
 var formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 var ErrorOverlay = require('react-error-overlay');
 
+// <REACT-WP-SCRIPTS>
+// Parse host from the current script's src to find the right domain.
+function getCurrentScriptSource() {
+	// `document.currentScript` is the most accurate way to find the current script,
+	// but is not supported in all browsers.
+	if (document.currentScript) { return document.currentScript.getAttribute('src'); }
+	// Fall back to getting all scripts in the document.
+	const scriptElements = document.scripts || [];
+	const currentScript = scriptElements[scriptElements.length - 1];
+	if (currentScript) { return currentScript.getAttribute('src'); }
+	// Fail as there was no script to use.
+	throw new Error('[WDS] Failed to get current script source.');
+}
+const scriptHost = getCurrentScriptSource().replace(/\/[^\/]+$/, '');
+const scriptHostParts = url.parse((scriptHost || '/'), false, true);
+// </REACT-WP-SCRIPTS>
+
 ErrorOverlay.setEditorHandler(function editorHandler(errorLocation) {
+	// <REACT-WP-SCRIPTS>
+	const endpoint = url.format( {
+		protocol: scriptHostParts.protocol,
+		hostname: scriptHostParts.hostname,
+		port: scriptHostParts.port,
+		// Hardcoded in WebpackDevServer
+		pathname: launchEditorEndpoint,
+	} );
+	// </REACT-WP-SCRIPTS>
 	// Keep this sync with errorOverlayMiddleware.js
 	fetch(
-		launchEditorEndpoint +
+		// <REACT-WP-SCRIPTS>
+		endpoint +
+		// </REACT-WP-SCRIPTS>
 			'?fileName=' +
 			window.encodeURIComponent(errorLocation.fileName) +
 			'&lineNumber=' +
@@ -63,26 +91,12 @@ if (module.hot && typeof module.hot.dispose === 'function') {
 // <REACT-WP-SCRIPTS>
 // Replace connection creation to allow using the script's domain
 // (localhost:3000) rather than the web root.
-function getCurrentScriptSource() {
-	// `document.currentScript` is the most accurate way to find the current script,
-	// but is not supported in all browsers.
-	if (document.currentScript) { return document.currentScript.getAttribute('src'); }
-	// Fall back to getting all scripts in the document.
-	const scriptElements = document.scripts || [];
-	const currentScript = scriptElements[scriptElements.length - 1];
-	if (currentScript) { return currentScript.getAttribute('src'); }
-	// Fail as there was no script to use.
-	throw new Error('[WDS] Failed to get current script source.');
-}
-
 // Connect to WebpackDevServer via a socket.
-let scriptHost = getCurrentScriptSource().replace(/\/[^\/]+$/, '');
-const urlParts = url.parse((scriptHost || '/'), false, true);
 var connection = new SockJS(
 	url.format({
-		protocol: urlParts.protocol,
-		hostname: urlParts.hostname,
-		port: urlParts.port,
+		protocol: scriptHostParts.protocol,
+		hostname: scriptHostParts.hostname,
+		port: scriptHostParts.port,
 		// Hardcoded in WebpackDevServer
 		pathname: '/sockjs-node',
 	})
